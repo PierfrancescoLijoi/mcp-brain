@@ -1,6 +1,6 @@
 active:
 - author: PierfrancescoLijoi
-  claimed_at: '2026-04-19T15:25:47.978743+00:00'
+  claimed_at: '2026-04-19T16:06:01.272961+00:00'
   files:
   - src/brain/compressor.py
   - src/tools/mcp_tools.py

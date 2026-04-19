@@ -3,6 +3,16 @@ import yaml
 from src.storage.db import get_memories, get_last_session, get_project
 
 
+def _strip_empty(obj):
+    if isinstance(obj, dict):
+        cleaned = {k: _strip_empty(v) for k, v in obj.items()}
+        return {k: v for k, v in cleaned.items()
+                if v is not None and v != [] and v != {} and v != '' and v != 0}
+    if isinstance(obj, list):
+        return [_strip_empty(i) for i in obj if i is not None and i != '']
+    return obj
+
+
 def build_l1_context(project_name: str) -> str:
     project = get_project(project_name)
     session = get_last_session(project_name)
@@ -57,7 +67,7 @@ def build_l1_context(project_name: str) -> str:
     if decisions:
         ctx['decisions'] = decisions[:2]
 
-    return yaml.dump(ctx, default_flow_style=True, allow_unicode=True).strip()
+    return yaml.dump(_strip_empty(ctx), default_flow_style=True, allow_unicode=True).strip()
 
 
 def build_l2_context(project_name: str) -> str:
@@ -76,7 +86,7 @@ def build_l2_context(project_name: str) -> str:
 
     if not ctx:
         return '# No L2 context available yet.'
-    return yaml.dump(ctx, default_flow_style=False, allow_unicode=True).strip()
+    return yaml.dump(_strip_empty(ctx), default_flow_style=False, allow_unicode=True).strip()
 
 
 def build_git_context(project_name: str) -> str:
