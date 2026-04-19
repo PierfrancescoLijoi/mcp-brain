@@ -1,0 +1,8 @@
+#!/bin/sh
+# mcp-brain post-commit hook
+# Installare con: mcp-brain install oppure copiare in .git/hooks/post-commit
+
+PROJECT_NAME=$(basename "$(git rev-parse --show-toplevel)")
+SCRIPT_DIR="$(git rev-parse --show-toplevel)"
+
+python "$SCRIPT_DIR/src/capture/git_hook.py" "$PROJECT_NAME"

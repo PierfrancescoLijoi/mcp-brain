@@ -95,3 +95,29 @@ def brain_save_session(
         next_steps: prossimo step (es. 'aggiungere circuit breaker')
     """
     return store_session(project, branch, wip, next_steps)
+
+@mcp.tool()
+def brain_install_hook(project_path: str) -> str:
+    """
+    Installa il git hook post-commit nel repo specificato.
+    Chiamare una volta sola per repo.
+
+    Args:
+        project_path: path assoluto del repo (es. 'C:\\Users\\user\\projects\\my-api')
+    """
+    import shutil
+    from pathlib import Path
+
+    hook_src = Path(__file__).parent.parent.parent / "hooks" / "post-commit"
+    hook_dst = Path(project_path) / ".git" / "hooks" / "post-commit"
+
+    if not hook_src.exists():
+        return f"error: hook source not found at {hook_src}"
+
+    if not (Path(project_path) / ".git").exists():
+        return f"error: {project_path} is not a git repository"
+
+    shutil.copy(hook_src, hook_dst)
+    hook_dst.chmod(0o755)
+
+    return f"hook installed at {hook_dst}"
