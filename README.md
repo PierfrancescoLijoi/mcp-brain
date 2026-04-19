@@ -181,6 +181,7 @@ Team of 5 devs x 10 sessions/day -> ~1.2M tokens saved per month
 ---
 
 ## Architecture
+```
 claude-code <- MCP stdio -> mcp-brain server
 |
 +-- src/storage/db.py       (SQLite local brain)
@@ -206,7 +207,7 @@ memory.db        (shared across team via git)
 claims.yaml      (active team claims)
 file_index.json  (inverted AST index)
 server.log       (runtime logs, gitignored)
-
+```
 ---
 
 ## Performance
