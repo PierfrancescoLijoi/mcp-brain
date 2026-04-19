@@ -33,13 +33,13 @@ def classify_commit(message: str, files: list) -> tuple:
     return 'pattern', f'commit: {message}'
 
 
-def rebuild_index():
+def update_index(changed_files: list):
     try:
-        from src.brain.file_indexer import build_index
-        idx = build_index()
-        print(f'[mcp-brain] file index rebuilt: {idx["total"]} files')
+        from src.brain.file_indexer import incremental_update
+        idx = incremental_update(changed_files)
+        print(f'[mcp-brain] index updated: {idx.get("updated_files", 0)} files changed, {idx["total"]} total')
     except Exception as e:
-        print(f'[mcp-brain] index rebuild error: {e}')
+        print(f'[mcp-brain] index update error: {e}')
 
 
 def run(project: str):
@@ -58,9 +58,10 @@ def run(project: str):
         project=project, category=category, content=content,
         frequency=1, files_affected=len(files), explicit=False,
     )
-    print(f'[mcp-brain] memory stored ? {result}')
+    print(f'[mcp-brain] memory stored -> {result}')
 
-    rebuild_index()
+    if files:
+        update_index(files)
 
 
 if __name__ == '__main__':

@@ -16,26 +16,29 @@ def _extract_keywords(text: str) -> set:
 
 
 def predict_files_from_issue(title: str, body: str = '') -> list:
-    '''Predice file coinvolti usando l indice pre-computato. Velocissimo.'''
+    '''Usa indice inverso. O(n_keywords) invece di O(n_files).'''
     keywords = _extract_keywords(f'{title} {body}')
     if not keywords:
         return []
 
     index = get_or_build_index()
-    if not index or not index.get('files'):
+    if not index or not index.get('inverted'):
         return []
 
-    scored = []
-    for file, tokens in index['files'].items():
-        token_set = set(tokens)
-        matches = keywords & token_set
-        if matches:
-            score = len(matches)
-            name_lower = file.lower()
-            for kw in keywords:
-                if kw in name_lower:
-                    score += 3
-            scored.append({'file': file, 'score': score})
+    inverted = index['inverted']
+    scores = {}
 
-    scored.sort(key=lambda x: x['score'], reverse=True)
-    return [s['file'] for s in scored[:10]]
+    for kw in keywords:
+        entries = inverted.get(kw, [])
+        for entry in entries:
+            file = entry['file']
+            weight = entry['weight']
+            scores[file] = scores.get(file, 0) + weight
+
+        # Bonus match parziale nel nome file
+        for file in index.get('files', {}).keys():
+            if kw in file.lower():
+                scores[file] = scores.get(file, 0) + 5
+
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    return [f for f, _ in ranked[:10]]
