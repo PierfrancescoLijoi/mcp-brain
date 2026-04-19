@@ -77,11 +77,15 @@ All three call `init_db()` then `mcp.run()`.
 
 ## Workflow ticket
 
-Quando l'utente scrive "lavora ticket #N":
+Quando l utente scrive "lavora ticket #N":
+
 1. call brain_start_ticket issue_id=N
 2. call brain_get_context
-3. leggi i file predetti
-4. rispetta eventuali warning di conflitto con PR aperte
-5. proponi la soluzione come diff o codice, SENZA modificare file
-6. aspetta conferma o iterazioni prima di applicare modifiche
-7. non fare mai git commit in autonomia
+3. leggi i file predetti dal tool
+4. se ci sono warning di conflitto con PR aperte, allineati a quelle PR
+5. PROPONI la soluzione in chat come diff o blocco di codice
+6. NON modificare nessun file senza conferma esplicita
+7. aspetta iterazioni: "cambia X", "rifai Y", "non mi piace Z"
+8. applica modifiche ai file SOLO dopo "ok applica" o equivalente
+9. NON fare mai git commit in autonomia
+10. il commit lo fa sempre l utente dopo aver testato

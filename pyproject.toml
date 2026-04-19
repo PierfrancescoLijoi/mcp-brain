@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-brain = "src.server:main"
+mcp-brain = "src.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
