@@ -76,7 +76,7 @@ Instead of giving more context,
 ## 💰 Token efficiency (core advantage)
 
 <p align="center">
-  <img src="assets/workflow.svg" width="750"/>
+  <img src="assets/costOptimization.svg" width="750"/>
 </p>
 
 Most tools increase token usage:
