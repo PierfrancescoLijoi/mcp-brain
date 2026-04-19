@@ -1,36 +1,46 @@
 # mcp-brain
 
-> Claude Code forgets your project every session.
+<p align="center">
+  <img src="assets/banner.svg" width="900"/>
+</p>
+
+> Claude Code forgets your project every session.  
 > **mcp-brain gives it persistent, structured memory — without wasting tokens.**
 
 It tracks decisions, prevents regressions, and makes the AI aware of your team’s work in real time.
 
 ---
 
-## The problem
+<p align="center">
+  <img src="assets/workflow.svg" width="850"/>
+</p>
+
+---
+
+## 🧠 The problem
 
 Every new Claude Code session starts from zero.
 
 You waste tokens re-explaining:
 
-* architecture and stack
-* conventions and anti-patterns
-* current work (WIP, branches)
-* what your teammates are doing
+- architecture and stack  
+- conventions and anti-patterns  
+- current work (WIP, branches)  
+- what your teammates are doing  
 
 This leads to:
 
-* repeated mistakes
-* outdated suggestions
-* conflicts with ongoing work
+- repeated mistakes  
+- outdated suggestions  
+- conflicts with ongoing work  
 
 ---
 
-## The solution
+## ⚡ The solution
 
 `mcp-brain` introduces a **persistent, structured memory layer** for Claude Code.
 
-```text
+```
 git commit        → raw events captured (filtered, not blindly stored)
 end of session    → snapshot saved (branch, WIP, next steps)
 new session       → compressed L1 context injected (~100 tokens)
@@ -39,83 +49,93 @@ GitHub ticket     → files predicted + conflicts detected + team awareness
 
 ---
 
-## Why this is different
+## ⚖️ Without vs With mcp-brain
+
+```
+Without:
+Claude → no memory → guess → wrong files → retries
+
+With:
+Claude → structured memory → correct context → correct actions
+```
+
+---
+
+## 🧬 Why this is different
 
 Most AI coding tools rely on ephemeral context or raw history.
 
 mcp-brain is built around three principles:
 
-### Signal over noise
+### 1. Signal over noise
 
-Commits are captured as **raw events**, not immediate memory.
+Commits are captured as **raw events**, not immediate memory.  
 Only high-signal patterns are promoted.
 
-### Memory lifecycle
+`docs`, `chore`, `style`, `test`, `ci` → **never promoted**
+
+---
+
+### 2. Memory lifecycle
 
 Every memory has a state:
 
-* `active`
-* `suspect`
-* `stale`
-* `superseded`
+- `active`
+- `suspect`
+- `stale`
+- `superseded`
 
-New decisions automatically **supersede older similar ones** using lightweight semantic matching
-(Jaccard similarity on tokenized content — no embeddings, zero latency).
+New decisions automatically **supersede older ones** using lightweight semantic matching  
+(Jaccard similarity — no embeddings, zero latency).
 
-### Team awareness
+---
+
+### 3. Team awareness
 
 The AI knows:
 
-* who is working on what
-* which files are being touched
-* where conflicts may occur
+- who is working on what  
+- which files are being touched  
+- where conflicts may occur  
 
 This prevents outdated suggestions and reduces merge conflicts.
 
 ---
 
-## Features
+## ✨ Features
 
-### Core memory system
+### 🧠 Core memory system
+- Persistent memory via local SQLite  
+- Lifecycle-aware memory (status + confidence + source)  
+- Staleness detection (time + repo activity)  
 
-* Persistent memory via local SQLite
-* Memory lifecycle with status tracking
-* Confidence and source attribution
-* Staleness detection (time + repo activity)
+### 🔍 Signal filtering
+- Raw event capture from git  
+- Promotion rules (signal over noise)  
+- Low-signal commits never promoted  
 
-### Signal filtering
+### 👥 Developer awareness
+- Git-aware context (branch, commits, changes)  
+- GitHub ticket workflow  
+- Soft-claims system (`.brain/shared/claims.yaml`)  
 
-* Raw event capture from git
-* Promotion rules to avoid noise
-* `docs`, `chore`, `style`, `test`, `ci` → never promoted
+### 🔎 Explainability
+- File predictions include:
+  - `why` (symbol, keyword, filename match)  
+  - `confidence`  
 
-### Developer awareness
+### ⚡ Performance
+- AST-based indexing (sub-100ms predictions)  
+- Incremental updates per commit  
+- YAML-compressed context (5–8x denser)  
 
-* Git-aware context (branch, changes, commits)
-* GitHub ticket workflow
-* Soft-claims system (`.brain/shared/claims.yaml`)
-
-### Explainability
-
-* File predictions include:
-
-  * `why` (symbol match, keyword, filename)
-  * `confidence`
-
-### Performance & efficiency
-
-* AST-based file indexing (sub-100ms predictions)
-* Incremental updates on commit
-* YAML-compressed context (5–8x denser)
-
-### Storage model
-
-* `.brain/shared/` → committed (team coordination)
-* `.brain/local/` → gitignored (DB, index, logs)
+### 💾 Storage model
+- `.brain/shared/` → committed (team coordination)  
+- `.brain/local/` → gitignored (DB, cache, logs)  
 
 ---
 
-## Quick start
+## 🚀 Quick start
 
 ```bash
 git clone https://github.com/PierfrancescoLijoi/mcp-brain.git
@@ -129,7 +149,7 @@ Add to Claude Code:
 claude mcp add mcp-brain python /absolute/path/to/run.py
 ```
 
-Initialize in your repo:
+Initialize in your project:
 
 ```bash
 mcp-brain init
@@ -137,7 +157,7 @@ mcp-brain init
 
 ---
 
-## Usage
+## 🛠️ Usage
 
 ### Start a session
 
@@ -145,7 +165,7 @@ mcp-brain init
 call brain_get_context for <project-name>
 ```
 
-Claude receives compressed, structured context:
+Claude receives structured context:
 
 ```yaml
 p: {name: my-api, stack: [FastAPI, PostgreSQL]}
@@ -169,37 +189,40 @@ work on ticket #42
 
 Claude will:
 
-1. load issue
-2. predict files (with reasons)
-3. detect conflicts (PRs + claims)
-4. register a claim
-5. propose a solution
-6. wait for confirmation
+1. load the issue  
+2. predict relevant files (with explanation)  
+3. detect conflicts (PRs + claims)  
+4. register a claim  
+5. propose a solution  
+6. wait for confirmation  
 
 ---
 
-## Token savings
+## 💰 Token savings
 
-Typical sessions:
 ```
 Without mcp-brain: ~1000–2000 tokens/session (context rebuilding)
 With mcp-brain:    ~500–900 tokens/session (compressed + targeted context)
 
 → ~40–60% reduction in context overhead (estimate)
 ```
-Actual savings depend on repo size, task complexity, and workflow.
+
+Actual savings depend on repo size and workflow.
 
 Also reduces:
-
-* wrong file exploration
-* regressions
-* merge conflicts
+- wrong file exploration  
+- regressions  
+- merge conflicts  
 
 ---
 
-## Architecture (simplified)
+## 🏗️ Architecture
 
-```text
+<p align="center">
+  <img src="assets/architecture.svg" width="850"/>
+</p>
+
+```
 claude-code  <-- MCP -->  mcp-brain
 
 src/
@@ -211,15 +234,15 @@ src/
 
 ---
 
-## Limitations
+## ⚠️ Limitations
 
-* Memory quality depends on promotion rules
-* Staleness detection is heuristic-based
-* No embeddings (by design, to keep token usage low)
-* Best suited for medium/large repos
+- Memory quality depends on promotion rules  
+- Staleness detection is heuristic-based  
+- No embeddings (by design — zero token overhead)  
+- Best suited for medium/large repositories  
 
 ---
 
-## License
+## 📄 License
 
 MIT
