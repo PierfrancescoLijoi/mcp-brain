@@ -1,9 +1,11 @@
 import sqlite3
 import json
+import subprocess
 from pathlib import Path
 from datetime import datetime
 
-DB_PATH = Path.home() / ".mcp-brain" / "brain.db"
+_repo_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
+DB_PATH = Path(_repo_root) / ".brain" / "memory.db"
 
 
 def get_connection() -> sqlite3.Connection:

@@ -1,12 +1,14 @@
 import json
 import yaml
 from src.storage.db import get_memories, get_last_session, get_project
+from src.capture.git_reader import get_repo_snapshot
 
 
 def build_l1_context(project_name: str) -> str:
     """
     Costruisce il contesto L1 in YAML compresso.
-    Target: 50-80 token fissi per sessione.
+    Include: progetto, sessione precedente, git snapshot corrente.
+    Target: 100-150 token fissi per sessione.
     """
     project = get_project(project_name)
     session = get_last_session(project_name)
@@ -15,12 +17,14 @@ def build_l1_context(project_name: str) -> str:
     stack = json.loads(project["stack"]) if project and project["stack"] else []
     conventions = json.loads(project["conventions"]) if project and project["conventions"] else {}
 
-    avoid = [
-        m["content"] for m in memories if m["category"] == "avoid"
-    ]
-    decisions = [
-        m["content"] for m in memories if m["category"] == "decision"
-    ]
+    avoid = [m["content"] for m in memories if m["category"] == "avoid"]
+    decisions = [m["content"] for m in memories if m["category"] == "decision"]
+
+    # Git snapshot in tempo reale
+    try:
+        git = get_repo_snapshot()
+    except Exception:
+        git = {}
 
     ctx = {
         "p": {
@@ -29,17 +33,28 @@ def build_l1_context(project_name: str) -> str:
             **conventions,
         },
         "s": {
-            "branch": session["branch"] if session else "unknown",
+            "branch": session["branch"] if session else git.get("branch", "unknown"),
             "wip": session["wip"] if session else None,
             "next": session["next_steps"] if session else None,
+        },
+        "git": {
+            "branch": git.get("branch", "unknown"),
+            "ahead": git.get("status", {}).get("ahead", 0),
+            "behind": git.get("status", {}).get("behind", 0),
+            "recent": [
+                c["message"] for c in git.get("recent_commits", [])[:3]
+            ],
+            "changed": [
+                f["file"] for f in git.get("changed_files", [])[:5]
+            ],
         },
     }
 
     if avoid:
-        ctx["avoid"] = avoid[:3]  # max 3 per restare sotto token budget
+        ctx["avoid"] = avoid[:3]
 
     if decisions:
-        ctx["decisions"] = decisions[:2]  # max 2 in L1
+        ctx["decisions"] = decisions[:2]
 
     return yaml.dump(ctx, default_flow_style=True, allow_unicode=True).strip()
 
