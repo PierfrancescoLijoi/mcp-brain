@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-_REPO_ROOT = os.environ.get('MCP_BRAIN_REPO', os.getcwd())
 from src.storage.paths import DB_PATH, ensure_dirs
 ensure_dirs()
 
@@ -39,6 +38,8 @@ def init_db():
             confidence TEXT DEFAULT 'medium',
             source TEXT DEFAULT 'manual',
             scope TEXT DEFAULT 'repo',
+            scope_type TEXT DEFAULT 'repo',
+            scope_value TEXT,
             supersedes INTEGER,
             last_verified_at TEXT DEFAULT (datetime('now')),
             created_at TEXT DEFAULT (datetime('now')),
@@ -70,16 +71,18 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_raw_promoted ON raw_events(project, promoted);
     """)
 
-    # Migrations safe: aggiungi colonne se DB esiste gi� senza di esse
     cols_memories = [r[1] for r in conn.execute("PRAGMA table_info(memories)").fetchall()]
-    for col, ddl in [
+    migrations = [
         ('status', "ALTER TABLE memories ADD COLUMN status TEXT DEFAULT 'active'"),
         ('confidence', "ALTER TABLE memories ADD COLUMN confidence TEXT DEFAULT 'medium'"),
         ('source', "ALTER TABLE memories ADD COLUMN source TEXT DEFAULT 'manual'"),
         ('scope', "ALTER TABLE memories ADD COLUMN scope TEXT DEFAULT 'repo'"),
+        ('scope_type', "ALTER TABLE memories ADD COLUMN scope_type TEXT DEFAULT 'repo'"),
+        ('scope_value', "ALTER TABLE memories ADD COLUMN scope_value TEXT"),
         ('supersedes', "ALTER TABLE memories ADD COLUMN supersedes INTEGER"),
         ('last_verified_at', "ALTER TABLE memories ADD COLUMN last_verified_at TEXT"),
-    ]:
+    ]
+    for col, ddl in migrations:
         if col not in cols_memories:
             try:
                 conn.execute(ddl)
@@ -121,22 +124,24 @@ def save_memory(project: str, level: int, category: str, content: str,
     conn.commit()
     conn.close()
 
-def save_memory(project: str, level: int, category: str, content: str,
-                score: float = 0.5, status: str = 'active',
-                confidence: str = 'medium', source: str = 'manual',
-                scope_type: str = 'repo', scope_value: str = None,
-                supersedes: int = None):
+
+def get_memories(project: str, level: int, only_active: bool = True) -> list:
     conn = get_connection()
-    now = datetime.utcnow().isoformat()
-    conn.execute("""
-        INSERT INTO memories
-          (project, level, category, content, score, status, confidence,
-           source, scope, scope_type, scope_value, supersedes, last_verified_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (project, level, category, content, score, status, confidence,
-          source, scope_type, scope_type, scope_value, supersedes, now, now))
-    conn.commit()
+    if only_active:
+        rows = conn.execute("""
+            SELECT * FROM memories
+            WHERE project = ? AND level = ? AND status = 'active'
+            ORDER BY score DESC, updated_at DESC
+        """, (project, level)).fetchall()
+    else:
+        rows = conn.execute("""
+            SELECT * FROM memories
+            WHERE project = ? AND level = ?
+            ORDER BY score DESC, updated_at DESC
+        """, (project, level)).fetchall()
     conn.close()
+    return [dict(r) for r in rows]
+
 
 def update_memory_status(memory_id: int, status: str):
     conn = get_connection()
@@ -218,7 +223,6 @@ def get_project(name: str) -> dict:
 
 
 def count_similar_patterns(project: str, content_prefix: str) -> int:
-    '''Conta quante raw_events hanno message simile.'''
     conn = get_connection()
     result = conn.execute("""
         SELECT COUNT(*) FROM raw_events
