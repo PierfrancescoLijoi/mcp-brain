@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-brain"
+version = "0.1.0"
+description = "Persistent memory MCP server for Claude Code — zero tokens wasted on context rebuilding"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "pyyaml>=6.0",
+    "gitpython>=3.1.0",
+]
+
+[project.scripts]
+mcp-brain = "src.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
