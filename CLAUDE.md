@@ -74,3 +74,14 @@ Memory categories: `decision`, `avoid`, `pattern`, `failed`.
 - `src/server.py:main` — registered as the `mcp-brain` console script in `pyproject.toml`
 
 All three call `init_db()` then `mcp.run()`.
+
+## Workflow ticket
+
+Quando l'utente scrive "lavora ticket #N":
+1. call brain_start_ticket issue_id=N
+2. call brain_get_context
+3. leggi i file predetti
+4. rispetta eventuali warning di conflitto con PR aperte
+5. proponi la soluzione come diff o codice, SENZA modificare file
+6. aspetta conferma o iterazioni prima di applicare modifiche
+7. non fare mai git commit in autonomia

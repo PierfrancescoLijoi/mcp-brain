@@ -208,3 +208,5 @@ __marimo__/
 
 # mcp-brain
 .brain/*.log
+# Secrets
+.env
