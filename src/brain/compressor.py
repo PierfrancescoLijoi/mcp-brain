@@ -20,6 +20,12 @@ def build_l1_context(project_name: str) -> str:
     except Exception:
         git = {}
 
+    try:
+        from src.brain.claims_manager import get_active_claims
+        claims = get_active_claims()
+    except Exception:
+        claims = []
+
     ctx = {
         'p': {'name': project_name, 'stack': stack, **conventions},
         's': {
@@ -35,6 +41,16 @@ def build_l1_context(project_name: str) -> str:
             'changed': [f['file'] for f in git.get('changed_files', [])[:5]],
         },
     }
+
+    if claims:
+        ctx['team_claims'] = [
+            {
+                'ticket': c['ticket'],
+                'author': c['author'],
+                'files': c['files'][:3],
+            }
+            for c in claims[:5]
+        ]
 
     if avoid:
         ctx['avoid'] = avoid[:3]
