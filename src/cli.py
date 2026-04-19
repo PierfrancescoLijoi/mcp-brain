@@ -34,7 +34,7 @@ def init_project(repo_path: str = None):
     print(f'[1/4] created {brain_dir}')
 
     gitignore = repo / '.gitignore'
-    patterns = ['.env', '.brain/*.log', '.brain/server.log']
+    patterns = ['.env', '.brain/local/', '.brain/shared/*.log']
     existing = gitignore.read_text(encoding='utf-8') if gitignore.exists() else ''
     to_add = [p for p in patterns if p not in existing]
     if to_add:

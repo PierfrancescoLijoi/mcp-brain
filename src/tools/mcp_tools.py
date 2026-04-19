@@ -153,3 +153,72 @@ def _team_status_impl():
 def brain_team_status(project: str) -> str:
     '''Stato team.'''
     return _timed_tool('brain_team_status', _team_status_impl)()
+
+
+@mcp.tool()
+def brain_check_staleness(project: str) -> str:
+    '''Marca come stale/suspect le memorie non verificate di recente. Ritorna conteggio.'''
+    from src.brain.staleness import check_staleness
+    import yaml
+    try:
+        result = check_staleness(project)
+        return yaml.dump({'staleness_check': result}, default_flow_style=False).strip()
+    except Exception as e:
+        return f'error: {e}'
+
+
+@mcp.tool()
+def brain_verify_memory(memory_id: int) -> str:
+    '''Ri-verifica una memoria stale/suspect (torna active).'''
+    from src.brain.staleness import reactivate_memory
+    try:
+        reactivate_memory(memory_id)
+        return f'memory {memory_id} reactivated as active'
+    except Exception as e:
+        return f'error: {e}'
+
+
+@mcp.tool()
+def brain_start_ticket_explained(project: str, issue_id: int, author: str) -> str:
+    '''Come brain_start_ticket ma con spiegazione per ogni file predetto.'''
+    from src.capture.github_reader import get_issue
+    from src.brain.file_predictor import predict_files_explained
+    from src.brain.conflict_detector import detect_conflicts, build_warnings
+    from src.brain.claims_manager import claim_files
+    import yaml
+
+    try:
+        issue = get_issue(issue_id)
+        if 'error' in issue:
+            return 'error loading issue: ' + str(issue.get('error'))
+
+        predictions = predict_files_explained(issue['title'], issue.get('body', ''))
+        files_only = [p['file'] for p in predictions]
+
+        conflicts = detect_conflicts(files_only, exclude_author=author)
+        warnings = build_warnings(conflicts)
+        claim_files(issue_id, files_only, author, issue['title'])
+
+        result = {
+            'ticket': {
+                'id': issue['id'],
+                'title': issue['title'],
+                'labels': issue['labels'],
+            },
+            'predicted_files': [
+                {
+                    'file': p['file'],
+                    'confidence': p['confidence'],
+                    'why': p['why'],
+                }
+                for p in predictions[:5]
+            ],
+            'conflicts': warnings if warnings else ['none'],
+            'guidance': (
+                'Coordinate with active PRs before modifying shared files'
+                if warnings else 'No conflicts detected, safe to proceed'
+            ),
+        }
+        return yaml.dump(result, default_flow_style=False, allow_unicode=True).strip()
+    except Exception as e:
+        return f'error: {e}'

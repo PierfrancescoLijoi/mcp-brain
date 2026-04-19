@@ -210,3 +210,7 @@ __marimo__/
 .brain/*.log
 # Secrets
 .env
+
+# mcp-brain local storage
+.brain/local/
+

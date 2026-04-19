@@ -12,7 +12,7 @@ load_dotenv(REPO_ROOT / '.env')
 
 import logging
 logging.basicConfig(
-    filename=str(REPO_ROOT / '.brain' / 'server.log'),
+    filename=str(REPO_ROOT / '.brain' / 'local' / 'server.log'),
     level=logging.INFO,
     format='%(asctime)s - %(message)s'
 )

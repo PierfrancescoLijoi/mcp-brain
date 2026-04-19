@@ -5,7 +5,7 @@ from pathlib import Path
 from src.brain.ast_indexer import extract_symbols, extract_identifiers
 
 REPO_CWD = os.environ.get('MCP_BRAIN_REPO', os.getcwd())
-INDEX_PATH = Path(REPO_CWD) / '.brain' / 'file_index.json'
+from src.storage.paths import INDEX_PATH
 
 IGNORE_DIRS = {'.git', '.brain', '__pycache__', 'node_modules', '.venv', 'venv',
                '.idea', 'dist', 'build', 'vendor', 'target', '.next', '.nuxt'}

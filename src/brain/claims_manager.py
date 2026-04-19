@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 REPO_CWD = os.environ.get('MCP_BRAIN_REPO', os.getcwd())
-CLAIMS_PATH = Path(REPO_CWD) / '.brain' / 'claims.yaml'
+from src.storage.paths import CLAIMS_PATH
 
 
 def _load_claims() -> dict:

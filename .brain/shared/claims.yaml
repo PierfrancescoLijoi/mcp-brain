@@ -1,14 +1,12 @@
 active:
 - author: PierfrancescoLijoi
-  claimed_at: '2026-04-19T16:06:01.272961+00:00'
+  claimed_at: '2026-04-19T16:46:26.953070+00:00'
   files:
   - src/brain/compressor.py
   - src/tools/mcp_tools.py
   - src/brain/claims_manager.py
-  - src/brain/file_indexer.py
-  - src/brain/file_predictor.py
-  - src/brain/retriever.py
   - src/capture/git_hook.py
   - src/storage/db.py
+  - src/brain/retriever.py
   ticket: 1
   title: Improve memory compression and yaml output
