@@ -4,215 +4,194 @@
   <img src="assets/banner.svg" width="900"/>
 </p>
 
-> Claude Code forgets your project every session.  
-> **mcp-brain gives it persistent, structured memory — without wasting tokens.**
+> Claude Code doesn’t fail because it lacks intelligence.  
+> It fails because **it has zero awareness of your repo and your team.**
 
-It tracks decisions, prevents regressions, and makes the AI aware of your team’s work in real time.
-
----
-
-<p align="center">
-  <img src="assets/workflow.svg" width="850"/>
-</p>
+**mcp-brain turns Claude into a repo-aware, team-aware engineer.**
 
 ---
 
-## 🧠 The problem
+## 🚀 What this is (in one sentence)
 
-Every new Claude Code session starts from zero.
+> **An awareness layer for AI coding — not just memory.**
 
-You waste tokens re-explaining:
+---
 
-- architecture and stack  
-- conventions and anti-patterns  
-- current work (WIP, branches)  
-- what your teammates are doing  
+## 🧠 The real problem
 
-This leads to:
+Claude Code operates blindly:
 
-- repeated mistakes  
+- no understanding of repo structure  
+- no awareness of recent changes  
+- no visibility into team activity  
+- no notion of outdated decisions  
+
+Result:
+
+- wrong file exploration  
 - outdated suggestions  
-- conflicts with ongoing work  
+- merge conflicts  
+- wasted tokens rebuilding context  
 
 ---
 
-## ⚡ The solution
+## ⚡ What mcp-brain changes
 
-`mcp-brain` introduces a **persistent, structured memory layer** for Claude Code.
-
-```
-git commit        → raw events captured (filtered, not blindly stored)
-end of session    → snapshot saved (branch, WIP, next steps)
-new session       → compressed L1 context injected (~100 tokens)
-GitHub ticket     → files predicted + conflicts detected + team awareness
-```
-
----
-
-## ⚖️ Without vs With mcp-brain
-
-```
 Without:
-Claude → no memory → guess → wrong files → retries
+Claude → explores → guesses → retries → conflicts
 
 With:
-Claude → structured memory → correct context → correct actions
-```
+Claude → predicts → verifies → acts → aligned with repo & team
 
 ---
 
-## 🧬 Why this is different
+## 🧬 Core idea
 
-Most AI coding tools rely on ephemeral context or raw history.
+Instead of giving more context,
 
-mcp-brain is built around three principles:
+👉 **we give structured awareness of reality**
 
-### 1. Signal over noise
-
-Commits are captured as **raw events**, not immediate memory.  
-Only high-signal patterns are promoted.
-
-`docs`, `chore`, `style`, `test`, `ci` → **never promoted**
+- what changed  
+- what matters  
+- who is working on what  
+- where to act  
 
 ---
 
-### 2. Memory lifecycle
+## 🔑 How it works
 
-Every memory has a state:
-
-- `active`
-- `suspect`
-- `stale`
-- `superseded`
-
-New decisions automatically **supersede older ones** using lightweight semantic matching  
-(Jaccard similarity — no embeddings, zero latency).
+git commit        → signals captured (filtered)  
+session end       → structured snapshot saved  
+new session       → compressed awareness injected (~100 tokens)  
+ticket opened     → files predicted + conflicts detected  
 
 ---
 
-### 3. Team awareness
+## 🧠 Awareness system (not memory system)
 
-The AI knows:
+### 1. Signal extraction (Git as truth)
+
+- commits = raw signal stream  
+- only high-signal patterns promoted  
+- noise ignored automatically  
+
+Ignored:
+docs / chore / test / ci  
+
+---
+
+### 2. Decision lifecycle
+
+Every decision evolves:
+
+- active  
+- suspect  
+- stale  
+- superseded  
+
+New changes automatically invalidate old decisions.
+
+No embeddings.  
+No vector DB.  
+Zero latency overhead.
+
+---
+
+### 3. Predictive repo understanding
+
+Before touching code, Claude knows:
+
+- which files matter  
+- why they matter  
+- how confident that prediction is  
+
+---
+
+### 4. Team awareness layer
+
+Claude understands:
 
 - who is working on what  
-- which files are being touched  
-- where conflicts may occur  
+- which files are in progress  
+- where conflicts may happen  
 
-This prevents outdated suggestions and reduces merge conflicts.
+Enables:
+
+- soft file claims  
+- conflict warnings before coding  
+- coordination across developers  
+
+---
+
+## ✨ What makes it different
+
+This is NOT:
+
+- a vector database  
+- a RAG system  
+- a memory checkpoint tool  
+
+This IS:
+
+- repo-aware AI behavior  
+- team-aware execution  
+- predictive file navigation  
+- lifecycle-aware decisions  
 
 ---
 
 ## ✨ Features
 
-### 🧠 Core memory system
-- Persistent memory via local SQLite  
-- Lifecycle-aware memory (status + confidence + source)  
-- Staleness detection (time + repo activity)  
+### 🧠 Awareness engine
+- Structured project state (not raw context)
+- Lifecycle-based decision tracking
+- Staleness + supersession detection
 
-### 🔍 Signal filtering
-- Raw event capture from git  
-- Promotion rules (signal over noise)  
-- Low-signal commits never promoted  
+### 🔍 Prediction engine
+- Issue → file prediction (AST-based)
+- Explanation (why) + confidence
+- Sub-100ms resolution
 
-### 👥 Developer awareness
-- Git-aware context (branch, commits, changes)  
-- GitHub ticket workflow  
-- Soft-claims system (`.brain/shared/claims.yaml`)  
+### 👥 Team coordination
+- Soft claims (.brain/shared/claims.yaml)
+- Conflict detection (PR + WIP overlap)
+- Shared vs local memory separation
 
-### 🔎 Explainability
-- File predictions include:
-  - `why` (symbol, keyword, filename match)  
-  - `confidence`  
+### ⚡ Performance-first
+- No embeddings
+- No vector DB
+- Incremental updates
+- YAML compressed context (5–8x denser)
 
-### ⚡ Performance
-- AST-based indexing (sub-100ms predictions)  
-- Incremental updates per commit  
-- YAML-compressed context (5–8x denser)  
+---
 
-### 💾 Storage model
-- `.brain/shared/` → committed (team coordination)  
-- `.brain/local/` → gitignored (DB, cache, logs)  
+## 🧠 Example
+
+Claude receives:
+
+p: {name: my-api, stack: [FastAPI, PostgreSQL]}  
+s: {branch: feat/auth, wip: "JWT refactor", next: "add refresh token"}  
+
+git:  
+  recent: ["refactor: JWT moved to RS256"]  
+  changed: [auth.py, middleware.py]  
+
+team_claims:  
+  - {ticket: 42, author: dev-B, files: [middleware.py]}  
+
+👉 Claude already knows where and how to act.
 
 ---
 
 ## 🚀 Quick start
 
-```bash
-git clone https://github.com/PierfrancescoLijoi/mcp-brain.git
-cd mcp-brain
-pip install -e .
-```
+git clone https://github.com/PierfrancescoLijoi/mcp-brain.git  
+cd mcp-brain  
+pip install -e .  
 
-Add to Claude Code:
+claude mcp add mcp-brain python /absolute/path/to/run.py  
 
-```bash
-claude mcp add mcp-brain python /absolute/path/to/run.py
-```
-
-Initialize in your project:
-
-```bash
-mcp-brain init
-```
-
----
-
-## 🛠️ Usage
-
-### Start a session
-
-```text
-call brain_get_context for <project-name>
-```
-
-Claude receives structured context:
-
-```yaml
-p: {name: my-api, stack: [FastAPI, PostgreSQL]}
-s: {branch: feat/auth, wip: "JWT refactor", next: "add refresh token"}
-git:
-  branch: feat/auth
-  recent: ["refactor: JWT moved to RS256"]
-  changed: [auth.py, middleware.py]
-avoid: ["ORM for bulk insert"]
-team_claims:
-  - {ticket: 42, author: dev-B, files: [middleware.py]}
-```
-
----
-
-### Work on a ticket
-
-```text
-work on ticket #42
-```
-
-Claude will:
-
-1. load the issue  
-2. predict relevant files (with explanation)  
-3. detect conflicts (PRs + claims)  
-4. register a claim  
-5. propose a solution  
-6. wait for confirmation  
-
----
-
-## 💰 Token savings
-
-```
-Without mcp-brain: ~1000–2000 tokens/session (context rebuilding)
-With mcp-brain:    ~500–900 tokens/session (compressed + targeted context)
-
-→ ~40–60% reduction in context overhead (estimate)
-```
-
-Actual savings depend on repo size and workflow.
-
-Also reduces:
-- wrong file exploration  
-- regressions  
-- merge conflicts  
+mcp-brain init  
 
 ---
 
@@ -222,24 +201,35 @@ Also reduces:
   <img src="assets/architecture.svg" width="850"/>
 </p>
 
-```
-claude-code  <-- MCP -->  mcp-brain
+claude-code  <-- MCP -->  mcp-brain  
 
-src/
-  storage/
-  brain/
-  capture/
-  tools/
-```
+src/  
+  storage/  
+  brain/  
+  capture/  
+  tools/  
 
 ---
 
-## ⚠️ Limitations
+## ⚠️ Trade-offs
 
-- Memory quality depends on promotion rules  
-- Staleness detection is heuristic-based  
-- No embeddings (by design — zero token overhead)  
-- Best suited for medium/large repositories  
+- Heuristic-based (no embeddings)
+- Requires good commit hygiene
+- Optimized for medium/large repos
+
+---
+
+## 💡 Positioning
+
+mcp-brain is not trying to be:
+
+- a knowledge base  
+- a memory database  
+- a generic MCP plugin  
+
+It is:
+
+> **a coordination and awareness layer for AI-assisted development**
 
 ---
 
