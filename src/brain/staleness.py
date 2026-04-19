@@ -1,10 +1,12 @@
 from datetime import datetime, timezone, timedelta
 from src.storage.db import get_connection
+from src.brain.similarity import find_similar_memories
 
 STALE_DAYS = 90
 SUSPECT_DAYS = 60
 HIGH_CHANGE_THRESHOLD = 5
 RECENT_WINDOW_DAYS = 30
+SEMANTIC_THRESHOLD = 0.35
 
 
 def _parse_date(s: str):
@@ -20,7 +22,6 @@ def _parse_date(s: str):
 
 
 def _get_recent_commit_files(days: int = RECENT_WINDOW_DAYS) -> set:
-    """Returns set of files touched in the last N days via git."""
     try:
         from src.capture.git_reader import _get_repo
         repo = _get_repo()
@@ -40,7 +41,6 @@ def _get_recent_commit_files(days: int = RECENT_WINDOW_DAYS) -> set:
 
 
 def _get_active_branches() -> set:
-    """Remote branches still existing."""
     try:
         from src.capture.git_reader import _get_repo
         repo = _get_repo()
@@ -50,30 +50,24 @@ def _get_active_branches() -> set:
 
 
 def _scope_overlaps_changes(memory: dict, changed_files: set, active_branches: set) -> bool:
-    """Check if memory scope was recently touched."""
     scope_type = memory.get('scope_type') or memory.get('scope') or 'repo'
     scope_value = memory.get('scope_value')
 
     if scope_type == 'repo':
         return True
-
     if scope_type == 'branch' and scope_value:
         return scope_value in active_branches
-
     if scope_type in ('file', 'module') and scope_value:
         for f in changed_files:
             if scope_value in f or f.startswith(scope_value):
                 return True
         return False
-
     if scope_type == 'ticket':
         return True
-
     return True
 
 
 def check_staleness(project: str) -> dict:
-    """Marks staleness using time, file changes, active branches."""
     conn = get_connection()
     rows = conn.execute(
         "SELECT * FROM memories WHERE project = ? AND status IN ('active', 'suspect')",
@@ -123,7 +117,7 @@ def check_staleness(project: str) -> dict:
 
 
 def mark_superseded(project: str, old_content_prefix: str, new_memory_id: int) -> int:
-    """Marks memories matching prefix as superseded."""
+    """Legacy: prefix-based superseding."""
     conn = get_connection()
     cursor = conn.execute(
         "UPDATE memories SET status = 'superseded', supersedes = ?, updated_at = datetime('now') WHERE project = ? AND content LIKE ? AND id != ? AND status = 'active'",
@@ -135,8 +129,40 @@ def mark_superseded(project: str, old_content_prefix: str, new_memory_id: int) -
     return count
 
 
+def mark_superseded_semantic(project: str, new_content: str, new_memory_id: int,
+                             category: str = None,
+                             threshold: float = SEMANTIC_THRESHOLD) -> list:
+    """
+    Semantic superseding: finds memories similar to new_content and marks them superseded.
+    Returns list of superseded memory dicts with similarity score.
+    """
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM memories WHERE project = ? AND status = 'active' AND id != ?",
+        (project, new_memory_id)
+    ).fetchall()
+    candidates = [dict(r) for r in rows]
+
+    similar = find_similar_memories(new_content, candidates, threshold=threshold, same_category=category)
+
+    superseded = []
+    for mem, score in similar:
+        conn.execute(
+            "UPDATE memories SET status = 'superseded', supersedes = ?, updated_at = datetime('now') WHERE id = ?",
+            (new_memory_id, mem['id'])
+        )
+        superseded.append({
+            'id': mem['id'],
+            'content': mem['content'],
+            'similarity': round(score, 3),
+        })
+
+    conn.commit()
+    conn.close()
+    return superseded
+
+
 def reactivate_memory(memory_id: int):
-    """Developer re-verifies a stale/suspect memory. Back to active."""
     conn = get_connection()
     conn.execute(
         "UPDATE memories SET status = 'active', last_verified_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",

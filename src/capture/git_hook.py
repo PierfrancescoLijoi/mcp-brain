@@ -54,8 +54,29 @@ def should_promote(project: str, message: str, classification: str, files: list)
         return True, 'high', 'breaking change or revert'
 
     # Rule 2: decision architetturale (refactor, migrate, switch)
-    if classification == 'decision':
-        return True, 'high', 'architectural decision'
+        # Auto-supersede semantico: trova memorie simili e marcale
+        if classification == 'decision':
+            from src.brain.staleness import mark_superseded_semantic
+            from src.storage.db import get_connection
+            conn = get_connection()
+            new_id_row = conn.execute(
+                "SELECT id FROM memories WHERE project = ? AND content = ? ORDER BY id DESC LIMIT 1",
+                (project, content)
+            ).fetchone()
+            conn.close()
+            if new_id_row:
+                new_id = new_id_row[0]
+                superseded = mark_superseded_semantic(
+                    project=project,
+                    new_content=content,
+                    new_memory_id=new_id,
+                    category='decision',
+                    threshold=0.35,
+                )
+                if superseded:
+                    print(f'[mcp-brain] superseded {len(superseded)} decision(s) via semantic similarity:')
+                    for s in superseded:
+                        print(f'  id={s["id"]} sim={s["similarity"]} content="{s["content"][:60]}"')
 
     # Rule 3: conventional commit semantico + >=3 file modificati
     SEMANTIC_PREFIXES = ('feat:', 'fix:', 'perf:', 'refactor:')
