@@ -1,0 +1,188 @@
+<svg viewBox="0 0 960 980" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mcp-brain ticket workflow">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a33"/>
+    </linearGradient>
+    <linearGradient id="accent3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <pattern id="grid3" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <filter id="softGlow3" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="960" height="980" fill="url(#bg3)"/>
+  <rect width="960" height="980" fill="url(#grid3)"/>
+
+  <!-- Header -->
+  <text x="60" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="700" fill="#ffffff">Workflow — work on a ticket</text>
+  <text x="60" y="82" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#94a3b8">From <tspan font-family="ui-monospace, monospace" fill="#cbd5e1">work on ticket #42</tspan> to a conflict-free, team-aware proposal.</text>
+  <rect x="60" y="94" width="80" height="3" rx="2" fill="url(#accent3)"/>
+
+  <!-- Developer prompt bubble -->
+  <g transform="translate(60, 130)">
+    <rect x="0" y="0" width="300" height="58" rx="14" fill="#1e293b" stroke="#334155"/>
+    <circle cx="28" cy="29" r="14" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+    <text x="28" y="34" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#86efac">D</text>
+    <text x="54" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="1.2">DEVELOPER</text>
+    <text x="54" y="44" font-family="ui-monospace, monospace" font-size="14" fill="#e2e8f0">&gt; work on ticket #42</text>
+  </g>
+
+  <!-- Vertical spine -->
+  <line x1="120" y1="215" x2="120" y2="870" stroke="#334155" stroke-width="2" stroke-dasharray="2 6"/>
+
+  <!-- STEP 01 -->
+  <g transform="translate(60, 215)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#8b5cf6" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">01</text>
+    <g transform="translate(110, 6)">
+      <rect x="0" y="0" width="780" height="82" rx="12" fill="#111827" stroke="#1e293b"/>
+      <rect x="0" y="0" width="4" height="82" rx="2" fill="#8b5cf6"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Load issue</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Fetch title, body, labels from GitHub — no blind LLM call.</text>
+      <g transform="translate(24, 60)" font-family="ui-monospace, monospace" font-size="11" fill="#67e8f0">
+        <text x="0" y="10">→ issue.title · issue.body · labels[]</text>
+      </g>
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#8b5cf6" fill-opacity="0.15" stroke="#8b5cf6" stroke-opacity="0.4"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#c4b5fd">GH API</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- STEP 02 -->
+  <g transform="translate(60, 320)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#ec4899" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#f9a8d4">02</text>
+    <g transform="translate(110, 6)">
+      <rect x="0" y="0" width="780" height="128" rx="12" fill="#111827" stroke="#1e293b"/>
+      <rect x="0" y="0" width="4" height="128" rx="2" fill="#ec4899"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Predict files</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">AST index matches symbols, keywords, filenames — sub-100ms, with reasons.</text>
+
+      <!-- Prediction rows -->
+      <g transform="translate(24, 64)" font-family="ui-monospace, monospace" font-size="12">
+        <g transform="translate(0, 0)">
+          <text x="0" y="10" fill="#e2e8f0">auth.py</text>
+          <rect x="130" y="2" width="100" height="10" rx="5" fill="#334155"/>
+          <rect x="130" y="2" width="87" height="10" rx="5" fill="#22c55e"/>
+          <text x="240" y="10" fill="#86efac">0.87</text>
+          <text x="290" y="10" fill="#94a3b8">· symbol: JWT</text>
+        </g>
+        <g transform="translate(0, 22)">
+          <text x="0" y="10" fill="#e2e8f0">middleware.py</text>
+          <rect x="130" y="2" width="100" height="10" rx="5" fill="#334155"/>
+          <rect x="130" y="2" width="74" height="10" rx="5" fill="#eab308"/>
+          <text x="240" y="10" fill="#fde68a">0.74</text>
+          <text x="290" y="10" fill="#94a3b8">· keyword: refresh_token</text>
+        </g>
+        <g transform="translate(0, 44)">
+          <text x="0" y="10" fill="#e2e8f0">tests/test_auth.py</text>
+          <rect x="130" y="2" width="100" height="10" rx="5" fill="#334155"/>
+          <rect x="130" y="2" width="52" height="10" rx="5" fill="#f97316"/>
+          <text x="240" y="10" fill="#fdba74">0.52</text>
+          <text x="290" y="10" fill="#94a3b8">· filename match</text>
+        </g>
+      </g>
+
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#ec4899" fill-opacity="0.15" stroke="#ec4899" stroke-opacity="0.4"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#f9a8d4">AST</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- STEP 03 - Conflict detection (HIGHLIGHTED) -->
+  <g transform="translate(60, 470)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#ef4444" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#fca5a5">03</text>
+    <g transform="translate(110, 6)" filter="url(#softGlow3)">
+      <rect x="0" y="0" width="780" height="106" rx="12" fill="#1a0f14" stroke="#ef4444" stroke-opacity="0.5"/>
+      <rect x="0" y="0" width="4" height="106" rx="2" fill="#ef4444"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Detect conflicts</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Scan open PRs + <tspan font-family="ui-monospace, monospace" fill="#e2e8f0">.brain/shared/claims.yaml</tspan> — warn before overlap.</text>
+
+      <g transform="translate(24, 66)">
+        <rect x="0" y="0" width="560" height="30" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.4"/>
+        <text x="12" y="20" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#fca5a5">
+          <tspan font-weight="700">⚠  middleware.py</tspan>
+          <tspan fill="#fecaca"> claimed by </tspan>
+          <tspan font-family="ui-monospace, monospace" fill="#fde68a">dev-B</tspan>
+          <tspan fill="#fecaca"> on ticket </tspan>
+          <tspan font-family="ui-monospace, monospace" fill="#fde68a">#38</tspan>
+        </text>
+      </g>
+
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-opacity="0.5"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#fca5a5">ALERT</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- STEP 04 -->
+  <g transform="translate(60, 600)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#06b6d4" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#67e8f0">04</text>
+    <g transform="translate(110, 6)">
+      <rect x="0" y="0" width="780" height="82" rx="12" fill="#111827" stroke="#1e293b"/>
+      <rect x="0" y="0" width="4" height="82" rx="2" fill="#06b6d4"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Register claim</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Soft-claim written to shared YAML — no lock, just visibility.</text>
+      <text x="24" y="70" font-family="ui-monospace, monospace" font-size="11" fill="#67e8f0">→ .brain/shared/claims.yaml  · {ticket: 42, author: you, files: [auth.py]}</text>
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-opacity="0.4"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#67e8f0">YAML</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- STEP 05 -->
+  <g transform="translate(60, 705)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#a855f7" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#d8b4fe">05</text>
+    <g transform="translate(110, 6)">
+      <rect x="0" y="0" width="780" height="82" rx="12" fill="#111827" stroke="#1e293b"/>
+      <rect x="0" y="0" width="4" height="82" rx="2" fill="#a855f7"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Propose solution</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Claude drafts the change — aware of stack, avoid-list, and team claims.</text>
+      <text x="24" y="70" font-family="ui-monospace, monospace" font-size="11" fill="#d8b4fe">→ diff · rationale · affected files</text>
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.4"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#d8b4fe">LLM</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- STEP 06 -->
+  <g transform="translate(60, 810)">
+    <circle cx="60" cy="40" r="22" fill="#111827" stroke="#22c55e" stroke-width="2.5"/>
+    <text x="60" y="45" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#86efac">06</text>
+    <g transform="translate(110, 6)">
+      <rect x="0" y="0" width="780" height="82" rx="12" fill="#0f1a14" stroke="#22c55e" stroke-opacity="0.4"/>
+      <rect x="0" y="0" width="4" height="82" rx="2" fill="#22c55e"/>
+      <text x="24" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#ffffff">Wait for confirmation</text>
+      <text x="24" y="50" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">No autonomous writes — human-in-the-loop gate before applying.</text>
+      <text x="24" y="70" font-family="ui-monospace, monospace" font-size="11" fill="#86efac">✓ on approval: apply · promote decision to memory · update snapshot</text>
+      <g transform="translate(700, 24)">
+        <rect x="0" y="0" width="60" height="22" rx="11" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-opacity="0.4"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="10" font-weight="700" fill="#86efac">GATE</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Footer legend -->
+  <g transform="translate(60, 930)" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#64748b">
+    <text x="0" y="0">Every step is deterministic except 05 — the LLM only sees filtered, structured context. No autonomous apply: step 06 is always human-gated.</text>
+  </g>
+</svg>
