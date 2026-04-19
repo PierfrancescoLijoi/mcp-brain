@@ -172,10 +172,11 @@ Every memory is scored 0.0-1.0 (recency 35%, frequency 30%, file impact 20%, exp
 
 ## Token savings
 ```
-Without mcp-brain: ~1700 tokens/session on context rebuilding
-With mcp-brain:    ~100 tokens fixed per session
-Savings:           ~94%
-Team of 5 devs x 10 tickets/day -> ~3M tokens saved per month
+Without mcp-brain: ~1500 tokens/session on context rebuilding
+With mcp-brain:    ~700 tokens/session (compressed context + targeted file reads)
+Savings:           ~50% on context overhead, ~800 tokens/session
+
+Team of 5 devs x 10 sessions/day -> ~1.2M tokens saved per month
 ```
 ---
 
