@@ -95,7 +95,18 @@ def run(project: str):
     else:
         promote, confidence, reason = should_promote(project, message, classification, files)
         if promote:
-            content = f'{classification}: {message.strip().splitlines()[0]}'
+            first_line = message.strip().splitlines()[0]
+            content = f'{classification}: {first_line}'
+
+            # Determine scope: se il commit tocca pochi file tutti nello stesso modulo, scope=module
+            scope_type = 'repo'
+            scope_value = None
+            if files and len(files) <= 5:
+                dirs = {f.rsplit('/', 1)[0] for f in files if '/' in f}
+                if len(dirs) == 1:
+                    scope_type = 'module'
+                    scope_value = dirs.pop()
+
             save_memory(
                 project=project,
                 level=1 if confidence == 'high' else 2,
@@ -105,11 +116,31 @@ def run(project: str):
                 status='active',
                 confidence=confidence,
                 source='git-hook',
-                scope='repo',
+                scope_type=scope_type,
+                scope_value=scope_value,
             )
-            # Mark raw event as promoted
+
+            # Auto-supersede: decisioni nuove rimpiazzano vecchie con keyword simili
+            if classification == 'decision':
+                from src.brain.staleness import mark_superseded
+                keywords = [w for w in first_line.lower().split() if len(w) > 4][:2]
+                superseded_count = 0
+                for kw in keywords:
+                    from src.storage.db import get_connection
+                    conn = get_connection()
+                    new_id_row = conn.execute(
+                        "SELECT id FROM memories WHERE project = ? AND content = ? ORDER BY id DESC LIMIT 1",
+                        (project, content)
+                    ).fetchone()
+                    conn.close()
+                    if new_id_row:
+                        new_id = new_id_row[0]
+                        superseded_count += mark_superseded(project, kw, new_id)
+                if superseded_count:
+                    print(f'[mcp-brain] superseded {superseded_count} older decision(s)')
+
             mark_raw_promoted(event_id)
-            print(f'[mcp-brain] promoted to memory (event_id={event_id}): {reason}')
+            print(f'[mcp-brain] promoted (scope={scope_type}{":" + scope_value if scope_value else ""}): {reason}')
         else:
             print(f'[mcp-brain] not promoted: {reason}')
 

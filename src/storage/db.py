@@ -107,37 +107,36 @@ def save_project(name: str, path: str, stack: list, conventions: dict):
 def save_memory(project: str, level: int, category: str, content: str,
                 score: float = 0.5, status: str = 'active',
                 confidence: str = 'medium', source: str = 'manual',
-                scope: str = 'repo', supersedes: int = None):
+                scope_type: str = 'repo', scope_value: str = None,
+                supersedes: int = None):
     conn = get_connection()
     now = datetime.utcnow().isoformat()
     conn.execute("""
         INSERT INTO memories
           (project, level, category, content, score, status, confidence,
-           source, scope, supersedes, last_verified_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           source, scope, scope_type, scope_value, supersedes, last_verified_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (project, level, category, content, score, status, confidence,
-          source, scope, supersedes, now, now))
+          source, scope_type, scope_type, scope_value, supersedes, now, now))
     conn.commit()
     conn.close()
 
-
-def get_memories(project: str, level: int, only_active: bool = True) -> list:
+def save_memory(project: str, level: int, category: str, content: str,
+                score: float = 0.5, status: str = 'active',
+                confidence: str = 'medium', source: str = 'manual',
+                scope_type: str = 'repo', scope_value: str = None,
+                supersedes: int = None):
     conn = get_connection()
-    if only_active:
-        rows = conn.execute("""
-            SELECT * FROM memories
-            WHERE project = ? AND level = ? AND status = 'active'
-            ORDER BY score DESC, updated_at DESC
-        """, (project, level)).fetchall()
-    else:
-        rows = conn.execute("""
-            SELECT * FROM memories
-            WHERE project = ? AND level = ?
-            ORDER BY score DESC, updated_at DESC
-        """, (project, level)).fetchall()
+    now = datetime.utcnow().isoformat()
+    conn.execute("""
+        INSERT INTO memories
+          (project, level, category, content, score, status, confidence,
+           source, scope, scope_type, scope_value, supersedes, last_verified_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (project, level, category, content, score, status, confidence,
+          source, scope_type, scope_type, scope_value, supersedes, now, now))
+    conn.commit()
     conn.close()
-    return [dict(r) for r in rows]
-
 
 def update_memory_status(memory_id: int, status: str):
     conn = get_connection()
