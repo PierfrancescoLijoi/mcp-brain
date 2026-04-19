@@ -70,7 +70,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_raw_promoted ON raw_events(project, promoted);
     """)
 
-    # Migrations safe: aggiungi colonne se DB esiste già senza di esse
+    # Migrations safe: aggiungi colonne se DB esiste giï¿½ senza di esse
     cols_memories = [r[1] for r in conn.execute("PRAGMA table_info(memories)").fetchall()]
     for col, ddl in [
         ('status', "ALTER TABLE memories ADD COLUMN status TEXT DEFAULT 'active'"),
@@ -156,14 +156,16 @@ def verify_memory(memory_id: int):
 
 
 def save_raw_event(project: str, commit_hash: str, branch: str,
-                   message: str, files: list, classification: str):
+                   message: str, files: list, classification: str) -> int:
     conn = get_connection()
-    conn.execute("""
+    cursor = conn.execute("""
         INSERT INTO raw_events (project, commit_hash, branch, message, files, classification)
         VALUES (?, ?, ?, ?, ?, ?)
     """, (project, commit_hash, branch, message, json.dumps(files), classification))
+    event_id = cursor.lastrowid
     conn.commit()
     conn.close()
+    return event_id
 
 
 def get_raw_events(project: str, promoted: bool = None) -> list:

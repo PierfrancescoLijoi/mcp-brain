@@ -38,13 +38,16 @@ def classify_commit(message: str) -> str:
         return 'pattern'
     return 'noise'
 
-
 def should_promote(project: str, message: str, classification: str, files: list) -> tuple:
     '''
     Decide se promuovere un raw event a memory.
     Ritorna (should_promote, confidence, reason).
     '''
     msg_lower = message.lower().strip()
+
+    # Exclude noise commit types
+    if msg_lower.startswith(('docs:', 'chore:', 'style:', 'test:', 'ci:')):
+        return False, 'low', f'low-signal prefix ({msg_lower.split(":")[0]}:)'
 
     # Rule 1: breaking/revert sempre promossi
     if any(k in msg_lower for k in ['breaking:', 'revert', 'rollback']):
@@ -54,9 +57,10 @@ def should_promote(project: str, message: str, classification: str, files: list)
     if classification == 'decision':
         return True, 'high', 'architectural decision'
 
-    # Rule 3: conventional commit prefix + >=2 file modificati
-    if message.startswith(CONVENTIONAL_PREFIXES) and len(files) >= 2:
-        return True, 'medium', 'conventional commit with multi-file impact'
+    # Rule 3: conventional commit semantico + >=3 file modificati
+    SEMANTIC_PREFIXES = ('feat:', 'fix:', 'perf:', 'refactor:')
+    if message.startswith(SEMANTIC_PREFIXES) and len(files) >= 3:
+        return True, 'medium', f'semantic commit with multi-file impact ({len(files)} files)'
 
     # Rule 4: pattern ricorrente (>= threshold messaggi simili)
     msg_prefix = message[:30]
@@ -66,7 +70,6 @@ def should_promote(project: str, message: str, classification: str, files: list)
 
     # Altrimenti: resta raw, non promosso
     return False, 'low', 'insufficient signal'
-
 
 def run(project: str):
     init_db()
@@ -83,8 +86,8 @@ def run(project: str):
         return
 
     classification = classify_commit(message)
-    save_raw_event(project, commit_hash, branch, message, files, classification)
-    print(f'[mcp-brain] raw event saved: {classification}')
+    event_id = save_raw_event(project, commit_hash, branch, message, files, classification)
+    print(f'[mcp-brain] raw event saved: {classification} (id={event_id})')
 
     # Skip promotion per commit classificati noise
     if classification == 'noise':
@@ -105,10 +108,8 @@ def run(project: str):
                 scope='repo',
             )
             # Mark raw event as promoted
-            events = get_raw_events(project)
-            if events:
-                mark_raw_promoted(events[0]['id'])
-            print(f'[mcp-brain] promoted to memory: {reason}')
+            mark_raw_promoted(event_id)
+            print(f'[mcp-brain] promoted to memory (event_id={event_id}): {reason}')
         else:
             print(f'[mcp-brain] not promoted: {reason}')
 
