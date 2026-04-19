@@ -181,12 +181,13 @@ Claude will:
 ## Token savings
 
 Typical sessions:
-
-```text
-Without mcp-brain: ~1500 tokens/session  
-With mcp-brain:    ~700 tokens/session  
-→ ~50% reduction
 ```
+Without mcp-brain: ~1000–2000 tokens/session (context rebuilding)
+With mcp-brain:    ~500–900 tokens/session (compressed + targeted context)
+
+→ ~40–60% reduction in context overhead (estimate)
+```
+Actual savings depend on repo size, task complexity, and workflow.
 
 Also reduces:
 
