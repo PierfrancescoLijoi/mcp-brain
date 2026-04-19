@@ -1,3 +1,4 @@
+import logging
 from mcp.server.fastmcp import FastMCP
 from src.brain.retriever import (
     get_context,
@@ -8,50 +9,46 @@ from src.brain.retriever import (
 )
 from src.storage.db import init_db
 
-mcp = FastMCP("mcp-brain")
+mcp = FastMCP('mcp-brain')
 
 
 @mcp.tool()
 def brain_init(project: str, path: str, stack: list[str], conventions: dict) -> str:
-    """
-    Inizializza un progetto nel brain.
-    Chiamare una volta sola per repo.
-
-    Args:
-        project: nome del progetto (es. 'my-api')
-        path: path assoluto del repo (es. '/home/user/projects/my-api')
-        stack: lista tecnologie (es. ['FastAPI', 'PostgreSQL', 'Redis'])
-        conventions: dict convenzioni (es. {'indent': 2, 'types': 'strict'})
-    """
+    '''Inizializza un progetto nel brain.'''
     init_db()
     return init_project(project, path, stack, conventions)
 
 
 @mcp.tool()
 def brain_get_context(project: str) -> str:
-    """
-    Ritorna il contesto L1 compresso per il progetto.
-    Chiamare SEMPRE all'inizio di ogni sessione.
-    Costo: ~70 token.
-
-    Args:
-        project: nome del progetto
-    """
-    return get_context(project)
+    '''Ritorna il contesto L1 compresso per il progetto.'''
+    logging.info(f'brain_get_context called for {project}')
+    try:
+        result = get_context(project)
+        logging.info(f'brain_get_context returned {len(result)} chars')
+        return result
+    except Exception as e:
+        logging.error(f'brain_get_context error: {e}', exc_info=True)
+        return f'error: {e}'
 
 
 @mcp.tool()
 def brain_get_decisions(project: str) -> str:
-    """
-    Ritorna decisioni architetturali, pattern e tentativi falliti (L2).
-    Chiamare solo quando il task corrente richiede contesto storico.
-    Costo: ~200-400 token.
-
-    Args:
-        project: nome del progetto
-    """
+    '''Ritorna decisioni architetturali, pattern e tentativi falliti (L2).'''
     return get_decisions(project)
 
+@mcp.tool()
+def brain_get_git_snapshot(project: str) -> str:
+    '''Ritorna snapshot git corrente: branch, commit recenti, file modificati. On-demand.'''
+    from src.brain.compressor import build_git_context
+    logging.info(f'brain_get_git_snapshot called for {project}')
+    try:
+        result = build_git_context(project)
+        logging.info(f'brain_get_git_snapshot returned {len(result)} chars')
+        return result
+    except Exception as e:
+        logging.error(f'brain_get_git_snapshot error: {e}', exc_info=True)
+        return f'error: {e}'
 
 @mcp.tool()
 def brain_remember(
@@ -62,18 +59,7 @@ def brain_remember(
     frequency: int = 1,
     files_affected: int = 1,
 ) -> str:
-    """
-    Salva una nuova memoria nel brain.
-    Il sistema assegna automaticamente il livello (L1/L2/L3) tramite scoring.
-
-    Args:
-        project: nome del progetto
-        category: tipo memoria — 'decision' | 'avoid' | 'pattern' | 'failed'
-        content: contenuto compresso della memoria
-        explicit: True se il developer l'ha marcata esplicitamente
-        frequency: quante volte questo pattern appare (default 1)
-        files_affected: quanti file tocca (default 1)
-    """
+    '''Salva una nuova memoria nel brain.'''
     return store_memory(project, category, content, frequency, files_affected, explicit)
 
 
@@ -84,40 +70,40 @@ def brain_save_session(
     wip: str,
     next_steps: str,
 ) -> str:
-    """
-    Salva lo snapshot di fine sessione.
-    Chiamare SEMPRE prima di chiudere Claude Code.
-
-    Args:
-        project: nome del progetto
-        branch: branch git attivo (es. 'feat/guardrails')
-        wip: cosa stavi facendo (es. 'refactor middleware chain')
-        next_steps: prossimo step (es. 'aggiungere circuit breaker')
-    """
+    '''Salva lo snapshot di fine sessione.'''
     return store_session(project, branch, wip, next_steps)
+
 
 @mcp.tool()
 def brain_install_hook(project_path: str) -> str:
-    """
-    Installa il git hook post-commit nel repo specificato.
-    Chiamare una volta sola per repo.
-
-    Args:
-        project_path: path assoluto del repo (es. 'C:\\Users\\user\\projects\\my-api')
-    """
+    '''Installa il git hook post-commit nel repo specificato.'''
     import shutil
     from pathlib import Path
 
-    hook_src = Path(__file__).parent.parent.parent / "hooks" / "post-commit"
-    hook_dst = Path(project_path) / ".git" / "hooks" / "post-commit"
+    hook_src = Path(__file__).parent.parent.parent / 'hooks' / 'post-commit'
+    hook_dst = Path(project_path) / '.git' / 'hooks' / 'post-commit'
 
     if not hook_src.exists():
-        return f"error: hook source not found at {hook_src}"
+        return f'error: hook source not found at {hook_src}'
 
-    if not (Path(project_path) / ".git").exists():
-        return f"error: {project_path} is not a git repository"
+    if not (Path(project_path) / '.git').exists():
+        return f'error: {project_path} is not a git repository'
 
     shutil.copy(hook_src, hook_dst)
     hook_dst.chmod(0o755)
 
-    return f"hook installed at {hook_dst}"
+    return f'hook installed at {hook_dst}'
+
+
+@mcp.tool()
+def brain_get_git_snapshot(project: str) -> str:
+    '''Ritorna snapshot git corrente: branch, commit recenti, file modificati. On-demand.'''
+    from src.brain.compressor import build_git_context
+    logging.info(f'brain_get_git_snapshot called for {project}')
+    try:
+        result = build_git_context(project)
+        logging.info(f'brain_get_git_snapshot returned {len(result)} chars')
+        return result
+    except Exception as e:
+        logging.error(f'brain_get_git_snapshot error: {e}', exc_info=True)
+        return f'error: {e}'

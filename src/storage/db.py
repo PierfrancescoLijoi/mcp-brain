@@ -1,12 +1,12 @@
 import sqlite3
 import json
-import subprocess
+import os
 from pathlib import Path
 from datetime import datetime
 
-_repo_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
-DB_PATH = Path(_repo_root) / ".brain" / "memory.db"
 
+_REPO_ROOT = os.environ.get("MCP_BRAIN_REPO", os.getcwd())
+DB_PATH = Path(_REPO_ROOT) / ".brain" / "memory.db"
 
 def get_connection() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)

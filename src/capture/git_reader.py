@@ -1,103 +1,79 @@
-import subprocess
+import os
+import time
 from pathlib import Path
+from git import Repo
+
+REPO_CWD = os.environ.get('MCP_BRAIN_REPO', os.getcwd())
+
+_cache = {'data': None, 'ts': 0}
+_TTL = 60
 
 
-def get_repo_root() -> Path:
-    result = subprocess.check_output(
-        ["git", "rev-parse", "--show-toplevel"], text=True
-    ).strip()
-    return Path(result)
+def _get_repo() -> Repo:
+    return Repo(REPO_CWD)
 
 
 def get_current_branch() -> str:
-    return subprocess.check_output(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True
-    ).strip()
+    try:
+        return _get_repo().active_branch.name
+    except Exception:
+        return 'unknown'
 
 
 def get_branch_status() -> dict:
-    """Quanti commit ahead/behind rispetto a main/master."""
     try:
-        base = "main"
-        ahead = subprocess.check_output(
-            ["git", "rev-list", "--count", f"{base}..HEAD"], text=True
-        ).strip()
-        behind = subprocess.check_output(
-            ["git", "rev-list", "--count", f"HEAD..{base}"], text=True
-        ).strip()
-        return {"ahead": int(ahead), "behind": int(behind)}
+        repo = _get_repo()
+        ahead = sum(1 for _ in repo.iter_commits('main..HEAD'))
+        behind = sum(1 for _ in repo.iter_commits('HEAD..main'))
+        return {'ahead': ahead, 'behind': behind}
     except Exception:
-        return {"ahead": 0, "behind": 0}
+        return {'ahead': 0, 'behind': 0}
 
 
-def get_recent_commits(n: int = 10) -> list[dict]:
-    """Ultimi N commit del branch corrente."""
+def get_recent_commits(n: int = 5) -> list:
     try:
-        log = subprocess.check_output([
-            "git", "log", f"-{n}",
-            "--pretty=format:%H|%s|%an|%ad",
-            "--date=short"
-        ], text=True).strip()
-
+        repo = _get_repo()
         commits = []
-        for line in log.splitlines():
-            if not line.strip():
-                continue
-            parts = line.split("|", 3)
-            if len(parts) == 4:
-                commits.append({
-                    "hash": parts[0][:8],
-                    "message": parts[1],
-                    "author": parts[2],
-                    "date": parts[3],
-                })
+        for c in list(repo.iter_commits('HEAD', max_count=n)):
+            commits.append({
+                'hash': c.hexsha[:8],
+                'message': c.message.strip().split('\n')[0],
+                'author': c.author.name,
+                'date': c.committed_datetime.strftime('%Y-%m-%d'),
+            })
         return commits
     except Exception:
         return []
 
 
-def get_changed_files(n_commits: int = 5) -> list[dict]:
-    """File modificati negli ultimi N commit con stat."""
+def get_changed_files(n_commits: int = 3) -> list:
     try:
-        result = subprocess.check_output([
-            "git", "diff", "--stat", f"HEAD~{n_commits}..HEAD"
-        ], text=True).strip()
-
+        repo = _get_repo()
+        commits = list(repo.iter_commits('HEAD', max_count=n_commits + 1))
+        if len(commits) < 2:
+            return []
+        diff = commits[0].diff(commits[-1])
         files = []
-        for line in result.splitlines():
-            if "|" in line and ("+" in line or "-" in line):
-                parts = line.split("|")
-                filename = parts[0].strip()
-                stats = parts[1].strip() if len(parts) > 1 else ""
-                files.append({
-                    "file": filename,
-                    "stats": stats,
-                })
+        for d in diff:
+            path = d.a_path or d.b_path
+            if path:
+                files.append({'file': path, 'stats': d.change_type})
         return files
     except Exception:
         return []
 
 
-def get_diff_summary(max_lines: int = 50) -> str:
-    """Diff compresso degli ultimi cambiamenti — max_lines per restare nel budget token."""
-    try:
-        diff = subprocess.check_output([
-            "git", "diff", "HEAD~1..HEAD",
-            "--unified=1",
-            "--diff-filter=AM",
-        ], text=True)
-
-        lines = diff.splitlines()[:max_lines]
-        return "\n".join(lines)
-    except Exception:
-        return ""
-
-
 def get_repo_snapshot() -> dict:
-    """Snapshot completo dello stato corrente del repo."""
-    return {
-        "branch": get_current_branch(),
-        "status": get_branch_status(),
-        "recent_commits": get_recent_commits(n=5),
-        "changed_files": get_changed_files(n_commits=3),
+    now = time.time()
+    if _cache['data'] and (now - _cache['ts']) < _TTL:
+        return _cache['data']
+
+    data = {
+        'branch': get_current_branch(),
+        'status': get_branch_status(),
+        'recent_commits': get_recent_commits(n=3),
+        'changed_files': get_changed_files(n_commits=3),
     }
+    _cache['data'] = data
+    _cache['ts'] = now
+    return data
