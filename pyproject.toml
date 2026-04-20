@@ -13,6 +13,13 @@ dependencies = [
     "mcp[cli]>=1.0.0",
     "pyyaml>=6.0",
     "gitpython>=3.1.0",
+    "pygithub>=2.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
 ]
 
 [project.scripts]
@@ -20,3 +27,7 @@ mcp-brain = "src.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
