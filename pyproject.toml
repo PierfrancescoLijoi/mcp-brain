@@ -14,12 +14,31 @@ dependencies = [
     "pyyaml>=6.0",
     "gitpython>=3.1.0",
     "pygithub>=2.1.0",
+    "tree-sitter>=0.23",
 ]
 
 [project.optional-dependencies]
+# Parser per singoli linguaggi: installa solo quelli che usi
+parsers = [
+    "tree-sitter-python>=0.23",
+    "tree-sitter-javascript>=0.23",
+    "tree-sitter-typescript>=0.23",
+    "tree-sitter-go>=0.23",
+    "tree-sitter-rust>=0.23",
+    "tree-sitter-java>=0.23",
+    "tree-sitter-c-sharp>=0.23",
+]
+# Tutto-in-uno: parser + dev tooling
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
+    "tree-sitter-python>=0.23",
+    "tree-sitter-javascript>=0.23",
+    "tree-sitter-typescript>=0.23",
+    "tree-sitter-go>=0.23",
+    "tree-sitter-rust>=0.23",
+    "tree-sitter-java>=0.23",
+    "tree-sitter-c-sharp>=0.23",
 ]
 
 [project.scripts]

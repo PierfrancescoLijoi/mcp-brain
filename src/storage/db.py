@@ -2,10 +2,15 @@ import sqlite3
 import json
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.storage.paths import DB_PATH, ensure_dirs
 ensure_dirs()
+
+
+def _utc_now_iso() -> str:
+    """ISO 8601 UTC timezone-aware (sostituisce datetime.utcnow() deprecato)."""
+    return datetime.now(timezone.utc).isoformat()
 
 
 def get_connection() -> sqlite3.Connection:
@@ -113,7 +118,7 @@ def save_memory(project: str, level: int, category: str, content: str,
                 scope_type: str = 'repo', scope_value: str = None,
                 supersedes: int = None):
     conn = get_connection()
-    now = datetime.utcnow().isoformat()
+    now = _utc_now_iso()
     conn.execute("""
         INSERT INTO memories
           (project, level, category, content, score, status, confidence,
