@@ -217,17 +217,32 @@ def run(project: str) -> None:
         else:
             print(f'[mcp-brain] not promoted: {reason}')
 
-    # Incremental index update (se implementato)
+    # Incremental code graph update
+    if files:
+        try:
+            from src.brain.code_graph import update_and_save
+            graph = update_and_save(files)
+            incr = graph.get('stats', {}).get('last_incremental', {})
+            print(
+                f'[mcp-brain] code graph updated: '
+                f'{incr.get("updated", 0)} changed, '
+                f'{incr.get("removed", 0)} removed, '
+                f'{graph["stats"]["total_files"]} total files'
+            )
+        except Exception as e:
+            print(f'[mcp-brain] code graph update error: {e}')
+
+    # Legacy file_indexer update (mantenuto per backward-compat con file_predictor v1)
     if files:
         try:
             from src.brain.file_indexer import incremental_update
             idx = incremental_update(files)
             print(
-                f'[mcp-brain] index updated: '
+                f'[mcp-brain] legacy index updated: '
                 f'{idx.get("updated_files", 0)} changed, {idx["total"]} total'
             )
         except Exception as e:
-            print(f'[mcp-brain] index update error: {e}')
+            print(f'[mcp-brain] legacy index error: {e}')
 
 
 if __name__ == '__main__':
