@@ -1,5 +1,5 @@
 """
-File predictor v2 — STEP 2.1 (BM25 + IDF) e STEP 2.2 (graph expansion).
+STEP 2.1 (BM25 + IDF) e STEP 2.2 (graph expansion).
 
 BM25 (STEP 2.1)
 ---------------
@@ -248,20 +248,24 @@ def predict_files_with_impact(
     top_k_seeds: int = 3,
     max_hops: int = 2,
     top_k: int = 10,
+    use_semantic: bool = True,
     index: Optional[Dict[str, Any]] = None,
     graph: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Predizione "v2" = BM25 seeds + graph expansion.
+    Predizione "v2" = BM25 seeds + graph expansion (+ semantic rerank opzionale).
 
     1. Calcola ranking BM25 (primary seeds).
     2. Prende i primi `top_k_seeds` seed e calcola `get_impact_radius` per ciascuno.
     3. I file scoperti ricevono score = seed_score * HOP_DECAY[hop].
-    4. Se `max_hops == 0` o graph non disponibile → identico a predict_files_explained.
+    4. Se `use_semantic=True` e il layer è disponibile, ri-ranka con cosine
+       similarity (blend 70/30 BM25/semantic). Altrimenti no-op.
+    5. Se `max_hops == 0` o graph non disponibile → identico a predict_files_explained.
 
     Ogni item include:
       file, score, confidence, why, source ('text_match' | 'graph_expansion'),
       hops (0 per seed, 1..max_hops per vicini), seed (se scoperto via graph).
+      Se use_semantic=True e attivo: 'semantic_score' aggiuntivo.
     """
     seeds = predict_files_explained(title, body, index=index, top_k=max(top_k, top_k_seeds * 5))
     if not seeds:
@@ -336,5 +340,19 @@ def predict_files_with_impact(
 
     for item in ranked:
         item['score'] = round(item['score'], 4)
+
+    # STEP 2.3 — semantic rerank opzionale (no-op se lib non installata)
+    if use_semantic:
+        try:
+            from src.brain.semantic_reranker import rerank as semantic_rerank
+            idx_for_rerank = index if index is not None else get_or_build_index()
+            query_text = f'{title} {body}'.strip()
+            # Reranka solo i primi 2*top_k per limitare I/O del modello
+            head = ranked[:max(top_k * 2, 10)]
+            tail = ranked[len(head):]
+            head = semantic_rerank(query_text, head, index=idx_for_rerank)
+            ranked = head + tail
+        except Exception:
+            pass  # fallback: tieni il ranking BM25 + graph
 
     return ranked[:top_k]

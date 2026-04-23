@@ -222,3 +222,20 @@ def brain_start_ticket_explained(project: str, issue_id: int, author: str) -> st
         return yaml.dump(result, default_flow_style=False, allow_unicode=True).strip()
     except Exception as e:
         return f'error: {e}'
+
+from src.tools.predict_files_tool import register_predict_files_tool
+register_predict_files_tool(mcp)
+from src.tools.conflict_tool_v2 import register_check_conflicts_v2_tool
+register_check_conflicts_v2_tool(mcp)
+from src.tools.ticket_context_tool import register_get_ticket_context_tool
+register_get_ticket_context_tool(mcp)
+from src.tools.patch_guard_tool import register_check_patch_tool
+register_check_patch_tool(mcp)
+from src.tools.feedback_tool import register_feedback_tools
+register_feedback_tools(mcp)
+
+# STEP 7 — Observability
+from src.tools.observability_tool import register_observability_tool, auto_instrument_existing_tools
+register_observability_tool(mcp)
+_instrumented = auto_instrument_existing_tools(mcp)
+import logging; logging.info(f'[observability] auto-instrumented {_instrumented} tools')

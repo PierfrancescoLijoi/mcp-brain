@@ -122,7 +122,11 @@ class TestDirectExpansion:
         graph = _make_graph({
             'src/auth.py': {'imported_by': ['src/handler.py']},
         })
-        res = predict_files_with_impact('login', graph=graph, max_hops=1)
+        # use_semantic=False: testiamo la matematica BM25+graph pura, senza
+        # il blend del reranker semantico che riscala tutti gli score.
+        res = predict_files_with_impact(
+            'login', graph=graph, max_hops=1, use_semantic=False,
+        )
         seed = next(r for r in res if r['file'] == 'src/auth.py')
         handler = next(r for r in res if r['file'] == 'src/handler.py')
         assert handler['score'] == pytest.approx(seed['score'] * HOP_DECAY[1], rel=1e-4)
@@ -240,8 +244,12 @@ class TestMerging:
         })
         graph_empty = _make_graph({})
 
-        res_linked = predict_files_with_impact('login', graph=graph_linked, max_hops=1)
-        res_empty = predict_files_with_impact('login', graph=graph_empty, max_hops=1)
+        res_linked = predict_files_with_impact(
+            'login', graph=graph_linked, max_hops=1, use_semantic=False,
+        )
+        res_empty = predict_files_with_impact(
+            'login', graph=graph_empty, max_hops=1, use_semantic=False,
+        )
 
         b_linked = next(r['score'] for r in res_linked if r['file'] == 'src/b.py')
         b_empty = next(r['score'] for r in res_empty if r['file'] == 'src/b.py')
