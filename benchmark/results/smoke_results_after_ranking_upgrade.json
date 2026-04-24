@@ -1,0 +1,1972 @@
+{
+  "config": {
+    "dataset": "benchmark\\datasets\\cache\\swebench_lite.jsonl",
+    "repo_cache": "benchmark\\repos",
+    "limit": 5,
+    "top_k": 10,
+    "max_hops": 2,
+    "use_semantic": false
+  },
+  "summary": {
+    "instances": 5,
+    "hit@1": 0,
+    "recall@1": 0.0,
+    "map@1": 0.0,
+    "hit@3": 0,
+    "recall@3": 0.0,
+    "map@3": 0.0,
+    "hit@5": 0,
+    "recall@5": 0.0,
+    "map@5": 0.0,
+    "hit@10": 0.6,
+    "recall@10": 0.6,
+    "map@10": 0.08333333333333333,
+    "avg_gold_files": 1,
+    "avg_predicted_files": 10,
+    "errors": 0
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "repo": "astropy/astropy",
+      "base_commit": "d16bfe05a744909de4b27f5875fe0d4ed41ce607",
+      "gold_files": [
+        "astropy/modeling/separable.py"
+      ],
+      "predicted_files": [
+        "astropy/modeling/tests/test_separable.py",
+        "astropy/modeling/tests/test_models.py",
+        "astropy/modeling/tests/test_functional_models.py",
+        "astropy/modeling/tests/test_models_quantities.py",
+        "astropy/modeling/models.py",
+        "astropy/modeling/functional_models.py",
+        "astropy/modeling/tests/test_physical_models.py",
+        "astropy/modeling/separable.py",
+        "astropy/modeling/tests/test_compound.py",
+        "astropy/modeling/tests/test_model_sets.py"
+      ],
+      "predictions": [
+        {
+          "file": "astropy/modeling/tests/test_separable.py",
+          "score": 19390.57,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, models, separability_matrix; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "false",
+              "import",
+              "inputs",
+              "modeling",
+              "separability",
+              "separable",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "models",
+              "separability_matrix"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "separable"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_models.py",
+          "score": 18762.4732,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, model, models; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "expected",
+              "import",
+              "linear",
+              "modeling",
+              "other",
+              "outputs",
+              "separable",
+              "these",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "model",
+              "models",
+              "separability_matrix"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_functional_models.py",
+          "score": 15305.3903,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, models; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "false",
+              "import",
+              "like",
+              "linear",
+              "linear1d",
+              "matrix",
+              "model",
+              "modeling",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "models"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_models_quantities.py",
+          "score": 15291.4118,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, linear1d; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "linear1d"
+            ],
+            "identifier": [
+              "correctly",
+              "false",
+              "following",
+              "import",
+              "inputs",
+              "linear",
+              "longer",
+              "model",
+              "modeling",
+              "models",
+              "true"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/models.py",
+          "score": 15193.4839,
+          "confidence": "high",
+          "why": "filename matches astropy; module path match: astropy.modeling; identifier match: astropy, import",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "astropy",
+              "import",
+              "linear1d",
+              "modeling",
+              "models",
+              "other",
+              "true"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/functional_models.py",
+          "score": 15144.6983,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, linear1d; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "complex",
+              "compute",
+              "import",
+              "linear",
+              "matrix",
+              "models",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "linear1d"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_physical_models.py",
+          "score": 15071.0443,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "import",
+              "linear",
+              "model",
+              "modeling",
+              "these",
+              "true"
+            ],
+            "symbol": [
+              "astropy"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "models"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/separable.py",
+          "score": 14372.8729,
+          "confidence": "high",
+          "why": "matched symbol(s) model, separability_matrix; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "astropy",
+              "compound",
+              "compute",
+              "diagonal",
+              "does",
+              "each",
+              "false",
+              "import",
+              "independent",
+              "inputs",
+              "matrix",
+              "modeling",
+              "models",
+              "more",
+              "output",
+              "outputs",
+              "separability",
+              "separable",
+              "true"
+            ],
+            "symbol": [
+              "model",
+              "separability_matrix"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling",
+              "separable"
+            ],
+            "path": [
+              "module path match: astropy.modeling",
+              "module path match: astropy.modeling.separable"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_compound.py",
+          "score": 14067.7585,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, linear1d, model; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "compound",
+              "correctly",
+              "does",
+              "import",
+              "inputs",
+              "like",
+              "modeling",
+              "models",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "linear1d",
+              "model"
+            ],
+            "filename": [
+              "astropy",
+              "compound",
+              "model",
+              "modeling"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        },
+        {
+          "file": "astropy/modeling/tests/test_model_sets.py",
+          "score": 12703.172,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy, linear1d, model; filename matches astropy; module path match: astropy.modeling",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "correctly",
+              "does",
+              "false",
+              "import",
+              "matrix",
+              "might",
+              "modeling",
+              "models",
+              "outputs",
+              "these",
+              "true"
+            ],
+            "symbol": [
+              "astropy",
+              "linear1d",
+              "model"
+            ],
+            "filename": [
+              "astropy",
+              "model",
+              "modeling"
+            ],
+            "path": [
+              "module path match: astropy.modeling"
+            ]
+          }
+        }
+      ],
+      "metrics": {
+        "hit@1": 0,
+        "recall@1": 0.0,
+        "ap@1": 0.0,
+        "hit@3": 0,
+        "recall@3": 0.0,
+        "ap@3": 0.0,
+        "hit@5": 0,
+        "recall@5": 0.0,
+        "ap@5": 0.0,
+        "hit@10": 1,
+        "recall@10": 1.0,
+        "ap@10": 0.125
+      },
+      "error": null
+    },
+    {
+      "instance_id": "astropy__astropy-14182",
+      "repo": "astropy/astropy",
+      "base_commit": "a5917978be39d13cd90b517e1de4e7a539ffaa48",
+      "gold_files": [
+        "astropy/io/ascii/rst.py"
+      ],
+      "predicted_files": [
+        "astropy/units/core.py",
+        "astropy/units/format/cds.py",
+        "astropy/units/function/core.py",
+        "astropy/units/__init__.py",
+        "astropy/units/format/utils.py",
+        "astropy/units/format/generic.py",
+        "astropy/units/format/fits.py",
+        "astropy/table/__init__.py",
+        "astropy/units/format/__init__.py",
+        "astropy/units/format/vounit.py"
+      ],
+      "predictions": [
+        {
+          "file": "astropy/units/core.py",
+          "score": 41855.8549,
+          "confidence": "high",
+          "why": "matched symbol(s) __call__, astropy, format; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "__call__",
+              "astropy",
+              "format",
+              "name",
+              "unit"
+            ],
+            "identifier": [
+              "args",
+              "argument",
+              "fill",
+              "having",
+              "last",
+              "line",
+              "packages",
+              "type",
+              "typeerror",
+              "units",
+              "width"
+            ],
+            "filename": [
+              "astropy",
+              "core",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units",
+              "symbol resembles filename: core"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/cds.py",
+          "score": 39854.1657,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, core, unit; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "description",
+              "format",
+              "import",
+              "module",
+              "name",
+              "python",
+              "registry",
+              "return",
+              "support",
+              "type"
+            ],
+            "symbol": [
+              "astropy",
+              "core",
+              "unit",
+              "units"
+            ],
+            "filename": [
+              "astropy",
+              "format",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/function/core.py",
+          "score": 36364.7254,
+          "confidence": "high",
+          "why": "matched symbol(s) __init__, astropy, unit; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "__init__",
+              "astropy",
+              "unit"
+            ],
+            "identifier": [
+              "args",
+              "argument",
+              "call",
+              "core",
+              "following",
+              "format",
+              "import",
+              "kwargs",
+              "most",
+              "name",
+              "output",
+              "type",
+              "typeerror",
+              "units"
+            ],
+            "filename": [
+              "astropy",
+              "core",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units",
+              "symbol resembles filename: core"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/__init__.py",
+          "score": 34543.1018,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, core, units; filename matches __init__; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "core",
+              "units"
+            ],
+            "identifier": [
+              "easier",
+              "import",
+              "module",
+              "most",
+              "python",
+              "return"
+            ],
+            "filename": [
+              "__init__",
+              "astropy",
+              "init",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module leaf matches filename: __init__",
+              "module path match: astropy.units",
+              "symbol resembles filename: __init__"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/utils.py",
+          "score": 34290.7596,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, core; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "argument",
+              "format",
+              "import",
+              "instance",
+              "name",
+              "return",
+              "type",
+              "typeerror",
+              "unit",
+              "units"
+            ],
+            "symbol": [
+              "astropy",
+              "core"
+            ],
+            "filename": [
+              "astropy",
+              "format",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/generic.py",
+          "score": 30068.1666,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, core, unit; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "count",
+              "description",
+              "format",
+              "having",
+              "import",
+              "module",
+              "name",
+              "python",
+              "registry",
+              "return",
+              "support",
+              "type",
+              "units"
+            ],
+            "symbol": [
+              "astropy",
+              "core",
+              "unit"
+            ],
+            "filename": [
+              "astropy",
+              "format",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/fits.py",
+          "score": 29969.4452,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, core, keyword; filename matches astropy; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "core",
+              "keyword",
+              "units"
+            ],
+            "identifier": [
+              "count",
+              "data",
+              "format",
+              "import",
+              "name",
+              "return",
+              "unit"
+            ],
+            "filename": [
+              "astropy",
+              "format",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module path match: astropy.units"
+            ]
+          }
+        },
+        {
+          "file": "astropy/table/__init__.py",
+          "score": 26928.0565,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy, connect, qtable; filename matches __init__; module path match: astropy.table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "documentation",
+              "format",
+              "import",
+              "name",
+              "write"
+            ],
+            "symbol": [
+              "astropy",
+              "connect",
+              "qtable",
+              "registry",
+              "table"
+            ],
+            "filename": [
+              "__init__",
+              "astropy",
+              "init",
+              "table"
+            ],
+            "path": [
+              "module leaf matches filename: __init__",
+              "module path match: astropy.table",
+              "symbol resembles filename: __init__"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/__init__.py",
+          "score": 26396.2748,
+          "confidence": "medium",
+          "why": "matched symbol(s) sys; filename matches __init__; module path match: astropy.units",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "astropy",
+              "core",
+              "format",
+              "import",
+              "instance",
+              "module",
+              "name",
+              "output",
+              "registry",
+              "return",
+              "type",
+              "typeerror",
+              "unit",
+              "units"
+            ],
+            "symbol": [
+              "sys"
+            ],
+            "filename": [
+              "__init__",
+              "astropy",
+              "format",
+              "init",
+              "unit",
+              "units"
+            ],
+            "path": [
+              "module leaf matches filename: __init__",
+              "module path match: astropy.units",
+              "symbol resembles filename: __init__"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/vounit.py",
+          "score": 25346.2344,
+          "confidence": "medium",
+          "why": "impact of 'astropy/units/format/__init__.py' (hop=1)",
+          "source": "graph_expansion",
+          "hops": 1,
+          "seed": "astropy/units/format/__init__.py",
+          "matches": {}
+        }
+      ],
+      "metrics": {
+        "hit@1": 0,
+        "recall@1": 0.0,
+        "ap@1": 0.0,
+        "hit@3": 0,
+        "recall@3": 0.0,
+        "ap@3": 0.0,
+        "hit@5": 0,
+        "recall@5": 0.0,
+        "ap@5": 0.0,
+        "hit@10": 0,
+        "recall@10": 0.0,
+        "ap@10": 0.0
+      },
+      "error": null
+    },
+    {
+      "instance_id": "astropy__astropy-14365",
+      "repo": "astropy/astropy",
+      "base_commit": "7269fa3e33e8d02485a647da91a5a2a60a06af61",
+      "gold_files": [
+        "astropy/io/ascii/qdp.py"
+      ],
+      "predicted_files": [
+        "astropy/table/tests/test_showtable.py",
+        "astropy/table/table.py",
+        "astropy/table/scripts/showtable.py",
+        "astropy/table/table_helpers.py",
+        "astropy/io/ascii/tests/test_qdp.py",
+        "astropy/io/ascii/tests/test_types.py",
+        "astropy/io/ascii/tests/test_cds_header_from_readme.py",
+        "astropy/io/ascii/tests/test_c_reader.py",
+        "astropy/io/ascii/tests/test_read.py",
+        "astropy/io/votable/table.py"
+      ],
+      "predictions": [
+        {
+          "file": "astropy/table/tests/test_showtable.py",
+          "score": 38559.1082,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, numpy; filename matches astropy; module path match: astropy.table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "expected",
+              "file",
+              "format",
+              "import",
+              "main",
+              "table"
+            ],
+            "symbol": [
+              "astropy",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "how",
+              "table"
+            ],
+            "path": [
+              "module path match: astropy.table"
+            ]
+          }
+        },
+        {
+          "file": "astropy/table/table.py",
+          "score": 37980.452,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, more; filename matches astropy; module path match: astropy.table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "more"
+            ],
+            "identifier": [
+              "case",
+              "created",
+              "following",
+              "help",
+              "information",
+              "last",
+              "must",
+              "specified",
+              "they",
+              "valueerror"
+            ],
+            "filename": [
+              "astropy",
+              "table"
+            ],
+            "path": [
+              "module path match: astropy.table",
+              "symbol resembles filename: table",
+              "symbol resembles filename: table_id"
+            ]
+          }
+        },
+        {
+          "file": "astropy/table/scripts/showtable.py",
+          "score": 35722.3307,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, main, table; filename matches astropy; module path match: astropy.table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "behavior",
+              "description",
+              "example",
+              "file",
+              "files",
+              "format",
+              "help",
+              "import",
+              "information",
+              "license",
+              "line",
+              "more",
+              "read",
+              "specified",
+              "table_id",
+              "they",
+              "type"
+            ],
+            "symbol": [
+              "astropy",
+              "main",
+              "table"
+            ],
+            "filename": [
+              "astropy",
+              "how",
+              "table"
+            ],
+            "path": [
+              "module path match: astropy.table"
+            ]
+          }
+        },
+        {
+          "file": "astropy/table/table_helpers.py",
+          "score": 33229.1619,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, numpy, table; filename matches astropy; module path match: astropy.table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "numpy",
+              "table"
+            ],
+            "identifier": [
+              "create",
+              "example",
+              "import",
+              "license",
+              "raise",
+              "value",
+              "valueerror"
+            ],
+            "filename": [
+              "astropy",
+              "help",
+              "table"
+            ],
+            "path": [
+              "module path match: astropy.table"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/ascii/tests/test_qdp.py",
+          "score": 31742.3396,
+          "confidence": "high",
+          "why": "matched symbol(s) ascii, astropy, numpy; filename matches ascii",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "ascii",
+              "astropy",
+              "numpy",
+              "table"
+            ],
+            "identifier": [
+              "available",
+              "file",
+              "first",
+              "format",
+              "import",
+              "just",
+              "line",
+              "raise",
+              "read",
+              "reading",
+              "serr",
+              "specified",
+              "table_id",
+              "warning"
+            ],
+            "filename": [
+              "ascii",
+              "astropy",
+              "qdp"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/ascii/tests/test_types.py",
+          "score": 31419.9819,
+          "confidence": "high",
+          "why": "matched symbol(s) ascii, astropy, numpy; filename matches ascii",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "ascii",
+              "astropy",
+              "numpy"
+            ],
+            "identifier": [
+              "import",
+              "license",
+              "read",
+              "table",
+              "type"
+            ],
+            "filename": [
+              "ascii",
+              "astropy",
+              "type"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/ascii/tests/test_cds_header_from_readme.py",
+          "score": 31362.584,
+          "confidence": "high",
+          "why": "matched symbol(s) ascii, astropy, numpy; filename matches ascii",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "ascii",
+              "astropy",
+              "numpy"
+            ],
+            "identifier": [
+              "description",
+              "import",
+              "license",
+              "main",
+              "read",
+              "table",
+              "value"
+            ],
+            "filename": [
+              "ascii",
+              "astropy",
+              "read"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/ascii/tests/test_c_reader.py",
+          "score": 31241.4015,
+          "confidence": "high",
+          "why": "matched symbol(s) ascii, astropy, numpy; filename matches ascii",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "ascii",
+              "astropy",
+              "numpy",
+              "table"
+            ],
+            "identifier": [
+              "available",
+              "case",
+              "created",
+              "file",
+              "first",
+              "import",
+              "license",
+              "more",
+              "must",
+              "read",
+              "specified",
+              "they"
+            ],
+            "filename": [
+              "ascii",
+              "astropy",
+              "read"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/ascii/tests/test_read.py",
+          "score": 31111.4728,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, numpy, table; filename matches ascii",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "numpy",
+              "table"
+            ],
+            "identifier": [
+              "case",
+              "created",
+              "description",
+              "expectation",
+              "file",
+              "first",
+              "import",
+              "information",
+              "last",
+              "license",
+              "must",
+              "read",
+              "specified",
+              "they",
+              "type",
+              "valueerror"
+            ],
+            "filename": [
+              "ascii",
+              "astropy",
+              "read"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/votable/table.py",
+          "score": 30538.5958,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, table; filename matches astropy; module leaf matches filename: table",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "astropy",
+              "table"
+            ],
+            "identifier": [
+              "created",
+              "description",
+              "example",
+              "file",
+              "first",
+              "following",
+              "format",
+              "import",
+              "information",
+              "just",
+              "license",
+              "line",
+              "more",
+              "must",
+              "python",
+              "raise",
+              "read",
+              "reading",
+              "recent",
+              "specified",
+              "table_id",
+              "value",
+              "valueerror",
+              "versions",
+              "warning"
+            ],
+            "filename": [
+              "astropy",
+              "table"
+            ],
+            "path": [
+              "module leaf matches filename: table",
+              "symbol resembles filename: table",
+              "symbol resembles filename: table_id"
+            ]
+          }
+        }
+      ],
+      "metrics": {
+        "hit@1": 0,
+        "recall@1": 0.0,
+        "ap@1": 0.0,
+        "hit@3": 0,
+        "recall@3": 0.0,
+        "ap@3": 0.0,
+        "hit@5": 0,
+        "recall@5": 0.0,
+        "ap@5": 0.0,
+        "hit@10": 0,
+        "recall@10": 0.0,
+        "ap@10": 0.0
+      },
+      "error": null
+    },
+    {
+      "instance_id": "astropy__astropy-14995",
+      "repo": "astropy/astropy",
+      "base_commit": "b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "gold_files": [
+        "astropy/nddata/mixins/ndarithmetic.py"
+      ],
+      "predicted_files": [
+        "astropy/nddata/tests/test_bitmask.py",
+        "astropy/nddata/mixins/tests/test_ndarithmetic.py",
+        "astropy/nddata/compat.py",
+        "astropy/nddata/mixins/tests/test_ndslicing.py",
+        "astropy/nddata/tests/test_nduncertainty.py",
+        "astropy/nddata/mixins/ndarithmetic.py",
+        "astropy/table/tests/test_pprint.py",
+        "astropy/nddata/nddata.py",
+        "astropy/nddata/bitmask.py",
+        "astropy/nddata/mixins/ndslicing.py"
+      ],
+      "predictions": [
+        {
+          "file": "astropy/nddata/tests/test_bitmask.py",
+          "score": 29805.5597,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, numpy; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "__version__",
+              "array",
+              "expected",
+              "import",
+              "mask",
+              "nddata",
+              "none",
+              "typeerror"
+            ],
+            "symbol": [
+              "astropy",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "mask",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/mixins/tests/test_ndarithmetic.py",
+          "score": 23159.3122,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, nddataref, numpy; filename matches arithmetic; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "arithmetic",
+              "array",
+              "does",
+              "done",
+              "expected",
+              "handle_mask",
+              "import",
+              "just",
+              "like",
+              "mask",
+              "multiply",
+              "nddata",
+              "none",
+              "propagation",
+              "return",
+              "there",
+              "unsupported",
+              "without",
+              "works"
+            ],
+            "symbol": [
+              "astropy",
+              "nddataref",
+              "numpy"
+            ],
+            "filename": [
+              "arithmetic",
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/compat.py",
+          "score": 22758.8155,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, mask, nddata; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "arithmetic",
+              "array",
+              "behavior",
+              "does",
+              "done",
+              "import",
+              "integer",
+              "just",
+              "like",
+              "nomask",
+              "none",
+              "particular",
+              "propagation",
+              "return",
+              "returns",
+              "then",
+              "type",
+              "typeerror",
+              "versions",
+              "whatever",
+              "without"
+            ],
+            "symbol": [
+              "astropy",
+              "mask",
+              "nddata",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/mixins/tests/test_ndslicing.py",
+          "score": 22520.0524,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, nddata, numpy; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "import",
+              "just",
+              "mask",
+              "nddataref",
+              "none",
+              "return",
+              "typeerror"
+            ],
+            "symbol": [
+              "astropy",
+              "nddata",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/tests/test_nduncertainty.py",
+          "score": 21741.4774,
+          "confidence": "high",
+          "why": "matched symbol(s) astropy, nddata, numpy; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "copied",
+              "does",
+              "done",
+              "expected",
+              "import",
+              "just",
+              "none",
+              "nothing",
+              "propagation",
+              "return",
+              "returns",
+              "there",
+              "type",
+              "typeerror",
+              "whatever",
+              "without"
+            ],
+            "symbol": [
+              "astropy",
+              "nddata",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "int",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/mixins/ndarithmetic.py",
+          "score": 19597.82,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy, multiply, numpy; filename matches arithmetic; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "arithmetic",
+              "array",
+              "behavior",
+              "bitwise",
+              "copied",
+              "description",
+              "handle_mask",
+              "import",
+              "just",
+              "like",
+              "main",
+              "mask",
+              "nddata",
+              "none",
+              "operand",
+              "returns",
+              "type",
+              "typeerror",
+              "without"
+            ],
+            "symbol": [
+              "astropy",
+              "multiply",
+              "numpy"
+            ],
+            "filename": [
+              "arithmetic",
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/table/tests/test_pprint.py",
+          "score": 19059.1469,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy, numpy; filename matches astropy",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "does",
+              "expected",
+              "import",
+              "itself",
+              "just",
+              "like",
+              "mask",
+              "none",
+              "output",
+              "print",
+              "python",
+              "return",
+              "typeerror",
+              "without",
+              "works"
+            ],
+            "symbol": [
+              "astropy",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "int",
+              "print"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/nddata.py",
+          "score": 18907.3318,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy, mask, nddata; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "behavior",
+              "copied",
+              "does",
+              "done",
+              "import",
+              "just",
+              "like",
+              "looks",
+              "nddataref",
+              "none",
+              "return",
+              "then",
+              "there",
+              "tries",
+              "type",
+              "typeerror",
+              "without"
+            ],
+            "symbol": [
+              "astropy",
+              "mask",
+              "nddata",
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/bitmask.py",
+          "score": 18678.8131,
+          "confidence": "medium",
+          "why": "matched symbol(s) numpy; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "__version__",
+              "array",
+              "astropy",
+              "bitwise",
+              "import",
+              "integer",
+              "mask",
+              "nddata",
+              "none",
+              "output",
+              "python",
+              "returns",
+              "type",
+              "typeerror"
+            ],
+            "symbol": [
+              "numpy"
+            ],
+            "filename": [
+              "astropy",
+              "mask",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        },
+        {
+          "file": "astropy/nddata/mixins/ndslicing.py",
+          "score": 15123.6544,
+          "confidence": "medium",
+          "why": "matched symbol(s) astropy; filename matches astropy; module path match: astropy.nddata",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "array",
+              "copied",
+              "handle",
+              "import",
+              "mask",
+              "nddata",
+              "nddataref",
+              "none",
+              "numpy",
+              "return",
+              "returns",
+              "then",
+              "typeerror",
+              "without"
+            ],
+            "symbol": [
+              "astropy"
+            ],
+            "filename": [
+              "astropy",
+              "nddata"
+            ],
+            "path": [
+              "module path match: astropy.nddata"
+            ]
+          }
+        }
+      ],
+      "metrics": {
+        "hit@1": 0,
+        "recall@1": 0.0,
+        "ap@1": 0.0,
+        "hit@3": 0,
+        "recall@3": 0.0,
+        "ap@3": 0.0,
+        "hit@5": 0,
+        "recall@5": 0.0,
+        "ap@5": 0.0,
+        "hit@10": 1,
+        "recall@10": 1.0,
+        "ap@10": 0.16666666666666666
+      },
+      "error": null
+    },
+    {
+      "instance_id": "astropy__astropy-6938",
+      "repo": "astropy/astropy",
+      "base_commit": "c76af9ed6bb89bfba45b9f5bc1e635188278e2fa",
+      "gold_files": [
+        "astropy/io/fits/fitsrec.py"
+      ],
+      "predicted_files": [
+        "astropy/io/fits/convenience.py",
+        "astropy/io/fits/hdu/table.py",
+        "astropy/io/fits/hdu/compressed.py",
+        "astropy/io/fits/column.py",
+        "astropy/io/fits/hdu/groups.py",
+        "astropy/io/fits/util.py",
+        "astropy/io/fits/tests/__init__.py",
+        "astropy/io/fits/fitsrec.py",
+        "astropy/units/format/fits.py",
+        "astropy/io/fits/__init__.py"
+      ],
+      "predictions": [
+        {
+          "file": "astropy/io/fits/convenience.py",
+          "score": 2730.0325,
+          "confidence": "high",
+          "why": "filename matches fits; module path match: io.fits; identifier match: ascii, because",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "because",
+              "being",
+              "code",
+              "doesn",
+              "field",
+              "fits",
+              "following",
+              "format",
+              "possible",
+              "replace",
+              "returns"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/hdu/table.py",
+          "score": 2729.3533,
+          "confidence": "high",
+          "why": "matched symbol(s) copy, fitsrec; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "because",
+              "being",
+              "chararray",
+              "doesn",
+              "encode",
+              "field",
+              "fits",
+              "floating",
+              "incorrect"
+            ],
+            "symbol": [
+              "copy",
+              "fitsrec"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/hdu/compressed.py",
+          "score": 2727.8171,
+          "confidence": "high",
+          "why": "matched symbol(s) fitsrec; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "being",
+              "copy",
+              "doesn",
+              "field",
+              "floating",
+              "place",
+              "replace",
+              "returns"
+            ],
+            "symbol": [
+              "fitsrec"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/column.py",
+          "score": 2721.51,
+          "confidence": "high",
+          "why": "matched symbol(s) ascii, copy, encode_ascii; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "ascii",
+              "copy",
+              "encode_ascii",
+              "numbers"
+            ],
+            "identifier": [
+              "being",
+              "chararray",
+              "code",
+              "doesn",
+              "field",
+              "floating",
+              "place",
+              "python",
+              "replace",
+              "returns"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/hdu/groups.py",
+          "score": 2483.7192,
+          "confidence": "high",
+          "why": "matched symbol(s) fitsrec; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "copy",
+              "doesn",
+              "field",
+              "fits",
+              "format",
+              "incorrect",
+              "numbers",
+              "output",
+              "possible",
+              "returns"
+            ],
+            "symbol": [
+              "fitsrec"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/util.py",
+          "score": 2464.9599,
+          "confidence": "high",
+          "why": "matched symbol(s) encode_ascii; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "because",
+              "being",
+              "code",
+              "copy",
+              "doesn",
+              "encode",
+              "fail",
+              "fits",
+              "following",
+              "operation",
+              "python",
+              "replace",
+              "returns"
+            ],
+            "symbol": [
+              "encode_ascii"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/tests/__init__.py",
+          "score": 2460.6097,
+          "confidence": "high",
+          "why": "matched symbol(s) fits; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "because",
+              "copy",
+              "replace",
+              "returns"
+            ],
+            "symbol": [
+              "fits"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/fitsrec.py",
+          "score": 2432.3824,
+          "confidence": "high",
+          "why": "matched symbol(s) copy, encode_ascii, field; filename matches fits; partial path match: fitsrec.py",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "ascii",
+              "because",
+              "being",
+              "chararray",
+              "doesn",
+              "encode",
+              "exponent",
+              "fits",
+              "floating",
+              "numbers",
+              "python",
+              "returns"
+            ],
+            "symbol": [
+              "copy",
+              "encode_ascii",
+              "field"
+            ],
+            "filename": [
+              "fits",
+              "fitsrec"
+            ],
+            "path": [
+              "module path match: io.fits",
+              "partial path match: fitsrec.py",
+              "symbol resembles filename: fitsrec"
+            ]
+          }
+        },
+        {
+          "file": "astropy/units/format/fits.py",
+          "score": 2343.4503,
+          "confidence": "high",
+          "why": "matched symbol(s) copy, fits; filename matches fits; module leaf matches filename: fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "symbol": [
+              "copy",
+              "fits"
+            ],
+            "identifier": [
+              "format"
+            ],
+            "filename": [
+              "fits",
+              "format"
+            ],
+            "path": [
+              "module leaf matches filename: fits"
+            ]
+          }
+        },
+        {
+          "file": "astropy/io/fits/__init__.py",
+          "score": 2243.1502,
+          "confidence": "high",
+          "why": "matched symbol(s) fitsrec; filename matches fits; module path match: io.fits",
+          "source": "text_match",
+          "hops": 0,
+          "matches": {
+            "identifier": [
+              "fits",
+              "format",
+              "possible"
+            ],
+            "symbol": [
+              "fitsrec"
+            ],
+            "filename": [
+              "fits"
+            ],
+            "path": [
+              "module path match: io.fits"
+            ]
+          }
+        }
+      ],
+      "metrics": {
+        "hit@1": 0,
+        "recall@1": 0.0,
+        "ap@1": 0.0,
+        "hit@3": 0,
+        "recall@3": 0.0,
+        "ap@3": 0.0,
+        "hit@5": 0,
+        "recall@5": 0.0,
+        "ap@5": 0.0,
+        "hit@10": 1,
+        "recall@10": 1.0,
+        "ap@10": 0.125
+      },
+      "error": null
+    }
+  ],
+  "elapsed_seconds": 136.67
+}
