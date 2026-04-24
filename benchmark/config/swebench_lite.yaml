@@ -1,0 +1,21 @@
+dataset_jsonl: benchmark/datasets/cache/swebench_lite.jsonl
+repo_cache: benchmark/repos
+results_json: benchmark/results/swebench_lite_results.json
+report_dir: benchmark/reports
+metrics:
+  - hit@1
+  - hit@3
+  - hit@5
+  - hit@10
+  - recall@1
+  - recall@3
+  - recall@5
+  - recall@10
+  - map@1
+  - map@3
+  - map@5
+  - map@10
+defaults:
+  top_k: 10
+  max_hops: 2
+  use_semantic: false

@@ -214,3 +214,41 @@ __marimo__/
 # mcp-brain local storage
 .brain/local/
 
+
+# -----------------------------
+# Benchmark artifacts
+# -----------------------------
+
+# SWE-bench / HuggingFace converted datasets
+benchmark/datasets/cache/
+benchmark/datasets/raw/
+
+# Local cloned repositories used for offline evaluation
+benchmark/repos/
+
+# Temporary benchmark workspace
+benchmark/tmp/
+benchmark/workdir/
+benchmark/.tmp/
+
+# Large or generated benchmark outputs
+benchmark/results/*.jsonl
+benchmark/results/*_raw.json
+benchmark/results/*_debug.json
+benchmark/results/*_predictions.json
+
+# Keep curated benchmark result summaries
+!benchmark/results/*.json
+!benchmark/results/README.md
+!benchmark/results/.gitkeep
+
+# Generated reports: keep final HTML/Markdown reports if you want to show them
+!benchmark/reports/*.html
+!benchmark/reports/*.md
+!benchmark/reports/README.md
+!benchmark/reports/.gitkeep
+
+# Python / benchmark runtime caches
+benchmark/**/__pycache__/
+benchmark/**/*.pyc
+benchmark/.pytest_cache/
