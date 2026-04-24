@@ -53,16 +53,40 @@ def is_available() -> bool:
         return False
 
 
+def _get_device() -> str:
+    """Prefer CUDA when available, unless explicitly overridden."""
+    forced = os.environ.get("MCP_BRAIN_SEMANTIC_DEVICE")
+    if forced:
+        return forced
+
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            return "cuda"
+    except Exception:
+        pass
+
+    return "cpu"
+
+
 def _get_model(name: Optional[str] = None):
     name = name or DEFAULT_MODEL_NAME
-    if name in _MODEL_CACHE:
-        return _MODEL_CACHE[name]
+    device = _get_device()
+    cache_key = f"{name}::{device}"
+
+    if cache_key in _MODEL_CACHE:
+        return _MODEL_CACHE[cache_key]
+
     with _MODEL_LOCK:
-        if name in _MODEL_CACHE:
-            return _MODEL_CACHE[name]
+        if cache_key in _MODEL_CACHE:
+            return _MODEL_CACHE[cache_key]
+
         from sentence_transformers import SentenceTransformer
-        _MODEL_CACHE[name] = SentenceTransformer(name)
-    return _MODEL_CACHE[name]
+
+        _MODEL_CACHE[cache_key] = SentenceTransformer(name, device=device)
+
+    return _MODEL_CACHE[cache_key]
 
 
 # ------------------------------------------------------------------
@@ -125,7 +149,10 @@ def rerank(
         texts.append(_build_doc_text(c['file'], data))
 
     try:
+        import sys
+        import time
         import numpy as np
+
         model = _get_model(model_name)
         emb = model.encode(texts, show_progress_bar=False)
         q = emb[0]

@@ -71,7 +71,12 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--top-k", type=int, default=10)
     parser.add_argument("--max-hops", type=int, default=2)
-    parser.add_argument("--use-semantic", action="store_true")
+    parser.add_argument(
+        "--use-semantic",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enable semantic reranking. Enabled by default; use --no-use-semantic to disable.",
+    )
     parser.add_argument("--timeout", type=int, default=180)
     args = parser.parse_args()
 
