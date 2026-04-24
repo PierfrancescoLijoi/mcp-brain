@@ -27,8 +27,8 @@ Graph expansion (STEP 2.2)
 seed con decadimento per distanza:
 
     hop=0 (seed)     : score BM25 originale (source='text_match')
-    hop=1 (diretto)  : seed_score * 0.50    (source='graph_expansion')
-    hop=2 (transit.) : seed_score * 0.25    (source='graph_expansion')
+    hop=1 (diretto)  : seed_score * 0.35    (source='graph_expansion')
+    hop=2 (transit.) : seed_score * 0.15    (source='graph_expansion')
 
 Se un file è sia seed BM25 sia scoperto via graph, resta 'text_match' ma il suo
 score viene incrementato dall'espansione (non duplicato: preserviamo la sorgente
@@ -57,7 +57,7 @@ SYMBOL_WEIGHT_THRESHOLD = 2
 FILENAME_BOOST_RATIO = 0.6
 
 # Expansion graph: decadimento per hop distance
-HOP_DECAY = {1: 0.50, 2: 0.25, 3: 0.125}
+HOP_DECAY = {1: 0.35, 2: 0.15, 3: 0.075}
 
 # Soglie relative per la confidence label
 CONF_HIGH = 0.70
@@ -202,7 +202,7 @@ def predict_files_explained(
             continue
         slot = scores.setdefault(file, {'score': 0.0, 'matches': {}, 'bm25_terms': 0})
         # Keep path score additive but bounded relative to BM25 scale.
-        slot['score'] += path_unit * path_raw / 5.0
+        slot['score'] += path_unit * path_raw / 3.0
         slot['matches'].setdefault('path', []).extend(path_reasons)
 
     # Soft penalties for noisy files after all positive evidence is aggregated.
