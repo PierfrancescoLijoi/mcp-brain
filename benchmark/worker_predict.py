@@ -24,21 +24,8 @@ def main() -> None:
     args = parser.parse_args()
 
     repo_dir = Path(args.repo_dir).resolve()
-    subprocess.run(
-        ["git", "reset", "--hard", args.base_commit],
-        cwd=repo_dir,
-        check=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    subprocess.run(
-        ["git", "clean", "-fdx", "-e", ".brain/"],
-        cwd=repo_dir,
-        check=False,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+    subprocess.run(["git", "reset", "--hard", args.base_commit], cwd=repo_dir, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["git", "clean", "-fdx", "-e", ".brain/"], cwd=repo_dir, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os.environ["MCP_BRAIN_REPO"] = str(repo_dir)
 
     from src.brain.file_indexer import build_index

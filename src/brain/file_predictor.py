@@ -41,6 +41,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from src.brain.file_indexer import get_or_build_index
+from src.brain.ranking_features import extract_query_features, noise_penalty, score_path_features
 
 # ------------------------------------------------------------------
 # Parametri BM25 e pesatura
@@ -126,8 +127,12 @@ def predict_files_explained(
 
     `index` è iniettabile per test: se None usa get_or_build_index().
     """
-    keywords = _extract_keywords(f'{title} {body}')
-    if not keywords:
+    features = extract_query_features(title, body)
+    keyword_weights = features.weighted_terms
+    # Backward-compatible fallback for very small synthetic tests.
+    if not keyword_weights:
+        keyword_weights = {kw: 1.0 for kw in _extract_keywords(f'{title} {body}')}
+    if not keyword_weights:
         return []
 
     idx = index if index is not None else get_or_build_index()
@@ -149,7 +154,7 @@ def predict_files_explained(
 
     scores: Dict[str, Dict[str, Any]] = {}  # file -> aggregated entry
 
-    for kw in keywords:
+    for kw, q_weight in keyword_weights.items():
         entries = inverted.get(kw, [])
         df = df_map.get(kw, len(entries)) or len(entries)
         if df == 0:
@@ -171,7 +176,7 @@ def predict_files_explained(
                 'matches': {},
                 'bm25_terms': 0,
             })
-            slot['score'] += bm25_contrib
+            slot['score'] += bm25_contrib * float(q_weight)
             slot['bm25_terms'] += 1
 
             reason_type = 'symbol' if tf >= SYMBOL_WEIGHT_THRESHOLD else 'identifier'
@@ -181,12 +186,31 @@ def predict_files_explained(
     max_bm25 = max((s['score'] for s in scores.values()), default=0.0)
     filename_boost = max_bm25 * FILENAME_BOOST_RATIO if max_bm25 > 0 else 1.0
 
-    for kw in keywords:
+    for kw, q_weight in keyword_weights.items():
         for file in files_meta.keys():
             if kw in file.lower():
                 slot = scores.setdefault(file, {'score': 0.0, 'matches': {}, 'bm25_terms': 0})
-                slot['score'] += filename_boost
+                slot['score'] += filename_boost * min(float(q_weight), 5.0)
                 slot['matches'].setdefault('filename', []).append(kw)
+
+    # Strong path/module/test-to-source features. These can create candidates even
+    # when a path-like issue mention has no exact symbol match in the inverted index.
+    path_unit = max(max_bm25, 1.0)
+    for file in files_meta.keys():
+        path_raw, path_reasons = score_path_features(file, features)
+        if path_raw <= 0:
+            continue
+        slot = scores.setdefault(file, {'score': 0.0, 'matches': {}, 'bm25_terms': 0})
+        # Keep path score additive but bounded relative to BM25 scale.
+        slot['score'] += path_unit * path_raw / 5.0
+        slot['matches'].setdefault('path', []).extend(path_reasons)
+
+    # Soft penalties for noisy files after all positive evidence is aggregated.
+    for file, data in list(scores.items()):
+        factor, penalty_reasons = noise_penalty(file, data.get('matches', {}))
+        if factor != 1.0:
+            data['score'] *= factor
+            data['matches'].setdefault('penalty', []).extend(penalty_reasons)
 
     if not scores:
         return []
@@ -215,9 +239,15 @@ def predict_files_explained(
         if 'filename' in matches:
             fns = sorted(set(matches['filename']))[:1]
             why_parts.append(f"filename matches {fns[0]}")
+        if 'path' in matches:
+            # Preserve reason priority from score_path_features instead of
+            # sorting alphabetically.
+            why_parts.append(matches['path'][0])
         if 'identifier' in matches and 'symbol' not in matches:
             ids = sorted(set(matches['identifier']))[:2]
             why_parts.append(f"identifier match: {', '.join(ids)}")
+        if 'penalty' in matches:
+            why_parts.append(sorted(set(matches['penalty']))[0])
 
         results.append({
             'file': file,
@@ -225,6 +255,15 @@ def predict_files_explained(
             'why': '; '.join(why_parts) if why_parts else 'keyword match',
             'score': round(score, 4),
             'matches': {k: sorted(set(v)) for k, v in matches.items()},
+            'breakdown': {
+                'bm25_terms': data.get('bm25_terms', 0),
+                'query_features': {
+                    'paths': list(features.file_paths),
+                    'modules': list(features.dotted_modules),
+                    'symbols': list(features.symbols)[:10],
+                    'test_source_candidates': list(features.test_source_candidates),
+                },
+            },
         })
 
     return results
