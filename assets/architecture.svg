@@ -78,7 +78,7 @@
     <text x="22" y="92" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Session snapshot</text>
     <text x="22" y="122" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Branch, WIP, next</text>
     <text x="22" y="140" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">steps, avoid-list.</text>
-    <text x="22" y="164" font-family="ui-monospace, monospace" font-size="11" fill="#64748b">status: active · stale · superseded</text>
+    <text x="4" y="164" font-family="ui-monospace, monospace" font-size="11" fill="#64748b">status: active · stale · superseded</text>
   </g>
 
   <!-- Arrow 3 -->

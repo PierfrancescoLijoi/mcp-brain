@@ -123,7 +123,7 @@
       </g>
       <!-- mcp-brain 63.4% -->
       <g transform="translate(0, 60)">
-        <text x="0" y="14" font-size="13" font-weight="700" fill="#86efac">mcp-brain v0.1 (this repo)</text>
+        <text x="0" y="14" font-size="13" font-weight="700" fill="#86efac">mcp-brain v1.4.0 (this repo)</text>
         <text x="450" y="14" text-anchor="end" font-size="13" font-weight="700" fill="#86efac">63.4%</text>
         <rect x="0" y="22" width="450" height="22" rx="4" fill="#1e293b"/>
         <rect x="0" y="22" width="285" height="22" rx="4" fill="url(#barGradAccent)"/>
