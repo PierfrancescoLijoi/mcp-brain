@@ -162,7 +162,7 @@
   </g>
 
   <!-- Footer -->
-  <text x="60" y="510" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#64748b">
+  <text x="60" y="570" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#64748b">
     <tspan font-weight="700" fill="#94a3b8">Reproducible:</tspan>
     <tspan font-family="ui-monospace, monospace" fill="#67e8f0"> python -m benchmark.run_eval --dataset … --top-k 10 --max-hops 2 --use-semantic</tspan>
     <tspan> · See benchmark/README.md</tspan>
