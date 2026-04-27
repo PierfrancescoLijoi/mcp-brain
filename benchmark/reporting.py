@@ -48,7 +48,8 @@ def write_markdown(path: Path, payload: Dict[str, Any]) -> None:
     ]
     rows = sorted(payload["results"], key=lambda r: (r["metrics"].get("hit@10", 0), r["metrics"].get("recall@10", 0)))[:20]
     for r in rows:
-        lines.append(f"### {r['instance_id']} — {r['repo']}")
+        repo_label = r.get("repo") or r.get("project") or r.get("source_root") or "unknown"
+        lines.append(f"### {r['instance_id']} — {repo_label}")
         lines.append(f"- Gold: `{', '.join(r['gold_files'][:10])}`")
         lines.append(f"- Predicted: `{', '.join(r['predicted_files'][:10])}`")
         lines.append(f"- Recall@10: **{r['metrics']['recall@10']:.3f}**, Hit@10: **{r['metrics']['hit@10']}**")
