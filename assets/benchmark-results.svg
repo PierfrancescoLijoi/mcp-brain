@@ -1,0 +1,170 @@
+<svg viewBox="0 0 1100 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mcp-brain SWE-bench Full benchmark results: Hit@K and comparison">
+  <defs>
+    <linearGradient id="bgB" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a33"/>
+    </linearGradient>
+    <linearGradient id="accentB" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="barGradAccent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="barGradMute" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <pattern id="gridB" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1100" height="540" fill="url(#bgB)"/>
+  <rect width="1100" height="540" fill="url(#gridB)"/>
+
+  <!-- Header -->
+  <text x="60" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">Benchmark — SWE-bench Full</text>
+  <text x="60" y="84" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#94a3b8">2294 real GitHub issues. File localization. Production files only (test files excluded). Zero LLM cost.</text>
+  <rect x="60" y="96" width="80" height="3" rx="2" fill="url(#accentB)"/>
+
+  <!-- LEFT PANEL: Hit@K bar chart -->
+  <g transform="translate(60, 130)">
+    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">HIT @ K</text>
+    <text x="0" y="18" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Fraction of issues where the right file is in top-K</text>
+
+    <!-- Y axis -->
+    <g transform="translate(40, 40)">
+      <line x1="0" y1="0" x2="0" y2="280" stroke="#334155" stroke-width="1"/>
+      <line x1="0" y1="280" x2="420" y2="280" stroke="#334155" stroke-width="1"/>
+      <!-- Grid lines + labels -->
+      <g font-family="ui-monospace, monospace" font-size="10" fill="#64748b">
+        <line x1="0" y1="0" x2="420" y2="0" stroke="#1e293b" stroke-dasharray="2 4"/>
+        <text x="-8" y="4" text-anchor="end">100%</text>
+        <line x1="0" y1="56" x2="420" y2="56" stroke="#1e293b" stroke-dasharray="2 4"/>
+        <text x="-8" y="60" text-anchor="end">80%</text>
+        <line x1="0" y1="112" x2="420" y2="112" stroke="#1e293b" stroke-dasharray="2 4"/>
+        <text x="-8" y="116" text-anchor="end">60%</text>
+        <line x1="0" y1="168" x2="420" y2="168" stroke="#1e293b" stroke-dasharray="2 4"/>
+        <text x="-8" y="172" text-anchor="end">40%</text>
+        <line x1="0" y1="224" x2="420" y2="224" stroke="#1e293b" stroke-dasharray="2 4"/>
+        <text x="-8" y="228" text-anchor="end">20%</text>
+        <text x="-8" y="284" text-anchor="end">0%</text>
+      </g>
+
+      <!-- Bars: 24.5%, 43.4%, 53.7%, 63.4% -> heights of 280px scale -->
+      <!-- @1: 24.5% -> 68.6 -->
+      <g transform="translate(40, 0)">
+        <rect x="0" y="211.4" width="60" height="68.6" rx="6" fill="url(#barGrad)" opacity="0.55"/>
+        <text x="30" y="200" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#67e8f0">24.5%</text>
+        <text x="30" y="298" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#94a3b8">@1</text>
+      </g>
+      <!-- @3: 43.4% -> 121.5 -->
+      <g transform="translate(140, 0)">
+        <rect x="0" y="158.5" width="60" height="121.5" rx="6" fill="url(#barGrad)" opacity="0.7"/>
+        <text x="30" y="148" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#67e8f0">43.4%</text>
+        <text x="30" y="298" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#94a3b8">@3</text>
+      </g>
+      <!-- @5: 53.7% -> 150.4 -->
+      <g transform="translate(240, 0)">
+        <rect x="0" y="129.6" width="60" height="150.4" rx="6" fill="url(#barGrad)" opacity="0.85"/>
+        <text x="30" y="119" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" fill="#67e8f0">53.7%</text>
+        <text x="30" y="298" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#94a3b8">@5</text>
+      </g>
+      <!-- @10: 63.4% -> 177.5 — accent -->
+      <g transform="translate(340, 0)">
+        <rect x="0" y="102.5" width="60" height="177.5" rx="6" fill="url(#barGradAccent)"/>
+        <text x="30" y="92" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800" fill="#86efac">63.4%</text>
+        <rect x="-6" y="102.5" width="72" height="177.5" rx="8" fill="none" stroke="#22c55e" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text x="30" y="298" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#86efac">@10</text>
+      </g>
+    </g>
+
+    <!-- KPI badges -->
+    <g transform="translate(0, 360)" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">
+      <g>
+        <rect x="0" y="0" width="120" height="44" rx="8" fill="#0d1430" stroke="#1e293b"/>
+        <text x="10" y="18" font-family="ui-monospace, monospace" font-size="10" fill="#94a3b8">INSTANCES</text>
+        <text x="10" y="36" font-family="ui-sans-serif, sans-serif" font-size="16" font-weight="700" fill="#ffffff">2 294</text>
+      </g>
+      <g transform="translate(135, 0)">
+        <rect x="0" y="0" width="120" height="44" rx="8" fill="#0d1430" stroke="#1e293b"/>
+        <text x="10" y="18" font-family="ui-monospace, monospace" font-size="10" fill="#94a3b8">ERROR RATE</text>
+        <text x="10" y="36" font-family="ui-sans-serif, sans-serif" font-size="16" font-weight="700" fill="#86efac">0.2%</text>
+      </g>
+      <g transform="translate(270, 0)">
+        <rect x="0" y="0" width="180" height="44" rx="8" fill="#0d1430" stroke="#1e293b"/>
+        <text x="10" y="18" font-family="ui-monospace, monospace" font-size="10" fill="#94a3b8">AVG GOLD FILES / ISSUE</text>
+        <text x="10" y="36" font-family="ui-sans-serif, sans-serif" font-size="16" font-weight="700" fill="#ffffff">1.66</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- RIGHT PANEL: comparison -->
+  <g transform="translate(580, 130)">
+    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">VS LITERATURE — HIT @ 10</text>
+    <text x="0" y="18" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" fill="#cbd5e1">Honest positioning. mcp-brain trades the last 10pp of accuracy for zero LLM cost.</text>
+
+    <!-- Horizontal bars -->
+    <g transform="translate(0, 50)" font-family="ui-sans-serif, system-ui, sans-serif">
+      <!-- BM25 baseline 50% -->
+      <g transform="translate(0, 0)">
+        <text x="0" y="14" font-size="13" font-weight="600" fill="#cbd5e1">BM25 baseline</text>
+        <text x="450" y="14" text-anchor="end" font-size="13" font-weight="700" fill="#94a3b8">~50%</text>
+        <rect x="0" y="22" width="450" height="22" rx="4" fill="#1e293b"/>
+        <rect x="0" y="22" width="225" height="22" rx="4" fill="url(#barGradMute)"/>
+        <text x="455" y="38" font-family="ui-monospace, monospace" font-size="11" fill="#64748b">free</text>
+      </g>
+      <!-- mcp-brain 63.4% -->
+      <g transform="translate(0, 60)">
+        <text x="0" y="14" font-size="13" font-weight="700" fill="#86efac">mcp-brain v0.1 (this repo)</text>
+        <text x="450" y="14" text-anchor="end" font-size="13" font-weight="700" fill="#86efac">63.4%</text>
+        <rect x="0" y="22" width="450" height="22" rx="4" fill="#1e293b"/>
+        <rect x="0" y="22" width="285" height="22" rx="4" fill="url(#barGradAccent)"/>
+        <rect x="-2" y="20" width="289" height="26" rx="6" fill="none" stroke="#22c55e" stroke-opacity="0.5" stroke-width="1.5"/>
+        <text x="455" y="38" font-family="ui-monospace, monospace" font-size="11" fill="#86efac" font-weight="700">free</text>
+      </g>
+      <!-- Agentless / SWE-agent 75% -->
+      <g transform="translate(0, 120)">
+        <text x="0" y="14" font-size="13" font-weight="600" fill="#cbd5e1">Agentless / SWE-agent</text>
+        <text x="450" y="14" text-anchor="end" font-size="13" font-weight="700" fill="#cbd5e1">~70-85%</text>
+        <rect x="0" y="22" width="450" height="22" rx="4" fill="#1e293b"/>
+        <rect x="0" y="22" width="350" height="22" rx="4" fill="url(#barGrad)" opacity="0.7"/>
+        <text x="455" y="38" font-family="ui-monospace, monospace" font-size="11" fill="#fbbf24">$0.10–$2 / query</text>
+      </g>
+    </g>
+
+    <!-- Reading guide -->
+    <g transform="translate(0, 280)">
+      <rect x="0" y="0" width="490" height="124" rx="10" fill="#0d1430" stroke="#1e293b"/>
+      <text x="20" y="28" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" fill="#ffffff">How to read these numbers</text>
+      <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">
+        <text x="20" y="52">
+          <tspan font-weight="700" fill="#86efac">Hit@5 = 53.7%</tspan>
+          <tspan> · in &gt;1 issue out of 2 the right file is in top-5</tspan>
+        </text>
+        <text x="20" y="74">
+          <tspan font-weight="700" fill="#86efac">Hit@10 = 63.4%</tspan>
+          <tspan> · in ~2 issues out of 3 it's in top-10</tspan>
+        </text>
+        <text x="20" y="96">
+          <tspan font-weight="700" fill="#67e8f0">Hit@1 = 24.5%</tspan>
+          <tspan> · the very first guess is correct 1 time out of 4</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Footer -->
+  <text x="60" y="510" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#64748b">
+    <tspan font-weight="700" fill="#94a3b8">Reproducible:</tspan>
+    <tspan font-family="ui-monospace, monospace" fill="#67e8f0"> python -m benchmark.run_eval --dataset … --top-k 10 --max-hops 2 --use-semantic</tspan>
+    <tspan> · See benchmark/README.md</tspan>
+  </text>
+</svg>

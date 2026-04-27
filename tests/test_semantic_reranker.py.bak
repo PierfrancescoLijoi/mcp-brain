@@ -1,12 +1,9 @@
 """
 Test STEP 2.3 — Semantic reranker (layer opzionale).
 
-La maggior parte dei test gira indipendentemente dalla presenza di
-sentence-transformers e verifica i fallback graceful. I test che richiedono
-la libreria sono `skipif(not is_available)`.
+La maggior parte dei test gira SENZA sentence-transformers installato e verifica
+i fallback graceful. I test che richiedono la libreria sono skipif(is_available).
 """
-import logging
-
 import pytest
 
 from src.brain.file_indexer import _finalize_index, save_index
@@ -29,17 +26,6 @@ def fake_index(tmp_brain):
         save_index(idx)
         return idx
     return _make
-
-
-@pytest.fixture(autouse=True)
-def _reset_warning_flag():
-    """Resetta il flag `_WARNED_UNAVAILABLE` prima e dopo ogni test, così che:
-       - i test non si influenzino tra loro
-       - il warning una-tantum sia testabile in isolamento
-    """
-    semantic_reranker._WARNED_UNAVAILABLE = False
-    yield
-    semantic_reranker._WARNED_UNAVAILABLE = False
 
 
 # ======================================================================
@@ -224,80 +210,3 @@ class TestModelCache:
 
     def test_default_model_name_constant(self):
         assert DEFAULT_MODEL_NAME.startswith('sentence-transformers/')
-
-
-# ======================================================================
-# 7. Warning una-tantum quando rerank è richiesto ma layer non disponibile
-# ======================================================================
-class TestWarningOnce:
-    """Verifica che il fallback silenzioso storico sia stato sostituito da
-    un WARNING informativo emesso UNA SOLA VOLTA per processo.
-
-    Tutti i test in questa classe forzano il kill-switch via env var per
-    avere un comportamento deterministico indipendente dall'installazione
-    di sentence-transformers.
-    """
-
-    def test_warning_emitted_once_when_unavailable(self, monkeypatch, caplog):
-        monkeypatch.setenv('MCP_BRAIN_SEMANTIC', '0')
-        candidates = [{'file': 'a.py', 'score': 1.0}]
-
-        with caplog.at_level(logging.WARNING):
-            # 3 chiamate → DEVE comparire 1 solo warning
-            rerank('q', candidates.copy(), index={'files': {}})
-            rerank('q', candidates.copy(), index={'files': {}})
-            rerank('q', candidates.copy(), index={'files': {}})
-
-        warns = [
-            r for r in caplog.records
-            if 'Semantic reranker richiesto' in r.getMessage()
-        ]
-        assert len(warns) == 1, (
-            f'Atteso esattamente 1 warning, trovati {len(warns)}: '
-            f'{[r.getMessage() for r in warns]}'
-        )
-
-    def test_warning_mentions_kill_switch_when_env_disabled(self, monkeypatch, caplog):
-        monkeypatch.setenv('MCP_BRAIN_SEMANTIC', '0')
-        with caplog.at_level(logging.WARNING):
-            rerank('q', [{'file': 'a.py', 'score': 1.0}], index={'files': {}})
-
-        all_msgs = ' '.join(r.getMessage() for r in caplog.records)
-        # Il messaggio deve essere informativo sulla causa
-        assert 'kill-switch' in all_msgs.lower() or 'MCP_BRAIN_SEMANTIC' in all_msgs
-
-    def test_no_warning_when_candidates_empty(self, monkeypatch, caplog):
-        """Candidates vuota = niente da reranker, non un problema → nessun warning."""
-        monkeypatch.setenv('MCP_BRAIN_SEMANTIC', '0')
-        with caplog.at_level(logging.WARNING):
-            rerank('q', [], index={'files': {}})
-
-        warns = [
-            r for r in caplog.records
-            if 'Semantic reranker richiesto' in r.getMessage()
-        ]
-        assert warns == []
-
-    def test_warning_flag_resets_between_tests(self):
-        """La fixture autouse `_reset_warning_flag` deve riportare lo stato
-        a False all'inizio di ogni test. Sanity check."""
-        assert semantic_reranker._WARNED_UNAVAILABLE is False
-
-    @pytest.mark.skipif(not is_available(), reason='sentence-transformers not installed')
-    def test_no_warning_when_layer_available(self, fake_index, caplog):
-        """Quando la lib è installata e l'env non è '0', NON deve essere emesso
-        nessun warning, indipendentemente dal numero di chiamate."""
-        idx = fake_index({
-            'src/auth.py': {'symbols': ['login'], 'identifiers': []},
-        })
-        candidates = [{'file': 'src/auth.py', 'score': 1.0}]
-
-        with caplog.at_level(logging.WARNING):
-            rerank('login', candidates.copy(), index=idx)
-            rerank('login', candidates.copy(), index=idx)
-
-        warns = [
-            r for r in caplog.records
-            if 'Semantic reranker richiesto' in r.getMessage()
-        ]
-        assert warns == []

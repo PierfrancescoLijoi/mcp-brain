@@ -91,7 +91,7 @@ def register_predict_files_tool(mcp) -> None:
             body: str = '',
             max_hops: int = 2,
             top_k: int = 10,
-            use_semantic: bool = True,
+            use_semantic: bool = False,
         ) -> str   # YAML con predictions
     """
     @mcp.tool()
@@ -105,8 +105,8 @@ def register_predict_files_tool(mcp) -> None:
     ) -> str:
         '''Predice i file probabilmente da modificare per un ticket/issue.
         Usa BM25 (symbols+identifiers con IDF) + espansione via code graph
-        (imported_by / called_by). Se use_semantic=True (default) e
-        sentence-transformers è installato, aggiunge un rerank semantico.
+        (imported_by / called_by). Se use_semantic=True e sentence-transformers
+        è installato, aggiunge un rerank semantico.
         Ritorna YAML con: file, confidence, score, source, hops, why.'''
         start = time.time()
         logging.info(

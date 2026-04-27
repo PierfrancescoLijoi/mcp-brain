@@ -15,12 +15,6 @@ dependencies = [
     "gitpython>=3.1.0",
     "pygithub>=2.1.0",
     "tree-sitter>=0.23",
-    # ---- Semantic reranker (default ON nel codice) ----
-    # NOTA: trascina PyTorch (~700 MB). Per CI/container lean
-    # è sufficiente impostare l'env var MCP_BRAIN_SEMANTIC=0 a
-    # runtime: il layer fa fallback graceful e non carica il modello.
-    "sentence-transformers>=2.2.0",
-    "numpy>=1.24",
 ]
 
 [project.optional-dependencies]
@@ -34,12 +28,7 @@ parsers = [
     "tree-sitter-java>=0.23",
     "tree-sitter-c-sharp>=0.23",
 ]
-# Bundle semantico (utile per re-install / upgrade puntuale)
-semantic = [
-    "sentence-transformers>=2.2.0",
-    "numpy>=1.24",
-]
-# Tooling di sviluppo + parser per girare la full test suite
+# Tutto-in-uno: parser + dev tooling
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -50,10 +39,6 @@ dev = [
     "tree-sitter-rust>=0.23",
     "tree-sitter-java>=0.23",
     "tree-sitter-c-sharp>=0.23",
-]
-# Comando unico "tutto pronto": parsers + semantic + dev tooling
-all = [
-    "mcp-brain[parsers,semantic,dev]",
 ]
 
 [project.scripts]

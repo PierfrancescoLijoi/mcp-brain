@@ -28,53 +28,53 @@
 
 **mcp-brain** is a Model Context Protocol (MCP) server that gives Claude Code persistent, structured awareness of your project — without burning tokens on context rebuilding.
 
-|  🧠 | **Compressed awareness** in ~100 tokens instead of ~2000                       |
-| :-: | :----------------------------------------------------------------------------- |
-|  🎯 | **63.4% Hit@10** on SWE-bench Full (2294 real GitHub issues) — zero LLM cost   |
-|  ⚡  | **Sub-100ms** file prediction (BM25 + code graph + optional semantic reranker) |
-|  👥 | **Team-aware**: soft claims, conflict detection, ownership tracking            |
-|  🔄 | **Self-healing**: decision lifecycle, automatic staleness, feedback loop       |
-| 🛡️ | **Local-first**: SQLite, no cloud, no embeddings required, GDPR-friendly       |
+| 🧠 | **Compressed awareness** in ~100 tokens instead of ~2000 |
+|:--:|:--|
+| 🎯 | **63.4% Hit@10** on SWE-bench Full (2294 real GitHub issues) — zero LLM cost |
+| ⚡ | **Sub-100ms** file prediction (BM25 + code graph + optional semantic reranker) |
+| 👥 | **Team-aware**: soft claims, conflict detection, ownership tracking |
+| 🔄 | **Self-healing**: decision lifecycle, automatic staleness, feedback loop |
+| 🛡️ | **Local-first**: SQLite, no cloud, no embeddings required, GDPR-friendly |
 
 ---
 
 ## 📑 Table of Contents
 
-* [The Problem](#-the-problem)
-* [What mcp-brain Changes](#-what-mcp-brain-changes)
-* [In 60 seconds](#️-in-60-seconds)
-* [How It Works](#-how-it-works)
-* [Memory Hierarchy](#-memory-hierarchy)
-* [Prediction Pipeline](#-prediction-pipeline)
-* [Decision Lifecycle](#-decision-lifecycle)
-* [Architecture](#️-architecture)
-* [Benchmark Results](#-benchmark-results)
-* [Token Efficiency](#-token-efficiency)
-* [Quick Start](#-quick-start)
-* [MCP Tools](#-mcp-tools)
-* [Use Cases](#-use-cases)
-* [FAQ](#-faq)
-* [Trade-offs](#️-trade-offs)
-* [Roadmap](#️-roadmap)
-* [License](#-license)
+- [The Problem](#-the-problem)
+- [What mcp-brain Changes](#-what-mcp-brain-changes)
+- [In 60 seconds](#-in-60-seconds)
+- [How It Works](#-how-it-works)
+- [Memory Hierarchy](#-memory-hierarchy)
+- [Prediction Pipeline](#-prediction-pipeline)
+- [Decision Lifecycle](#-decision-lifecycle)
+- [Architecture](#️-architecture)
+- [Benchmark Results](#-benchmark-results)
+- [Token Efficiency](#-token-efficiency)
+- [Quick Start](#-quick-start)
+- [MCP Tools](#-mcp-tools)
+- [Use Cases](#-use-cases)
+- [FAQ](#-faq)
+- [Trade-offs](#️-trade-offs)
+- [Roadmap](#️-roadmap)
+- [License](#-license)
 
 ---
 
 ## 🚨 The Problem
 
 <p align="center">
-  <img src="assets/workflow.svg" width="850" alt="Workflow comparison: without mcp-brain Claude explores blindly; with mcp-brain Claude starts from structured repo and team awareness"/>
+  <img src="assets/workflow.svg" width="850" alt="Workflow comparison"/>
 </p>
 
 Without persistent awareness, Claude Code operates **blindly** at the start of every session:
 
-| Without mcp-brain                         | With mcp-brain                        |
-| ----------------------------------------- | ------------------------------------- |
-| ❌ No idea which files matter              | ✅ Predicted files in top-K            |
-| ❌ Re-explores the repo every session      | ✅ Compressed context in ~100 tokens   |
-| ❌ No visibility into teammates' WIP       | ✅ Soft claims + conflict detection    |
-| ❌ Acts on outdated decisions              | ✅ Decision lifecycle (active → stale) |
-| ❌ Burns 2000–5000 tokens just to "orient" | ✅ One YAML block, ready to act        |
+| Without mcp-brain | With mcp-brain |
+|---|---|
+| ❌ No idea which files matter | ✅ Predicted files in top-K |
+| ❌ Re-explores the repo every session | ✅ Compressed context in ~100 tokens |
+| ❌ No visibility into teammates' WIP | ✅ Soft claims + conflict detection |
+| ❌ Acts on outdated decisions | ✅ Decision lifecycle (active → stale) |
+| ❌ Burns 2000–5000 tokens just to "orient" | ✅ One YAML block, ready to act |
 
 **Result without mcp-brain:** wrong file exploration → outdated suggestions → merge conflicts → massive token waste.
 
@@ -99,11 +99,10 @@ Without persistent awareness, Claude Code operates **blindly** at the start of e
 > Instead of giving Claude **more context**, we give it **structured awareness of reality**.
 
 We track:
-
-* 📌 what changed (signal extraction from git)
-* 🎯 what matters (scoring + lifecycle)
-* 👥 who's working on what (team claims)
-* 🧭 where to act (issue → file prediction)
+- 📌 what changed (signal extraction from git)
+- 🎯 what matters (scoring + lifecycle)
+- 👥 who's working on what (team claims)
+- 🧭 where to act (issue → file prediction)
 
 …and we deliver it **in ~100 tokens**.
 
@@ -123,17 +122,11 @@ You drop a one-line ticket into Claude Code:
 
 ```yaml
 predictions:
-  - file: src/auth.py
-    confidence: high
-    why: "path + symbol match: login, jwt"
-  - file: src/middleware.py
-    confidence: medium
-    why: "imports auth (hop 1)"
-  - file: src/jwt_utils.py
-    confidence: medium
-    why: "called_by auth.login"
+  - file: src/auth.py        confidence: high   why: "path + symbol match: login, jwt"
+  - file: src/middleware.py  confidence: medium why: "imports auth (hop 1)"
+  - file: src/jwt_utils.py   confidence: medium why: "called_by auth.login"
 team_claims:
-  - { ticket: 39, author: dev-B, files: [middleware.py] }   # ⚠️ overlap
+  - {ticket: 39, author: dev-B, files: [middleware.py]}   # ⚠️ overlap
 avoid:
   - "HS256 — vulnerable to key confusion. Migrated to RS256 in commit a1b2c3."
 decisions:
@@ -147,29 +140,16 @@ It's **structured reality**, not regenerated context. Claude can act on the firs
 ## 🔑 How It Works
 
 ```mermaid
-flowchart TD
-    subgraph Capture[Capture signals]
-        A[Git commit] -->|filtered signals| B[mcp-brain memory]
-        C[Session end] -->|structured snapshot| B
-    end
-
-    subgraph Predict[Predict where to act]
-        E[Ticket opened] --> F[File predictor]
-        F -->|top-K files + confidence + why| D[Claude Code]
-    end
-
-    subgraph Coordinate[Coordinate team work]
-        F -->|overlap check| G[Team claims]
-        G -->|conflict warnings| D
-    end
-
-    subgraph Learn[Learn from outcomes]
-        H[Outcome recorded] -->|precision / recall| I[Feedback loop]
-        I -->|demote noisy memories| B
-        I -->|supersede stale decisions| B
-    end
-
-    B -->|~100-token YAML context| D
+flowchart LR
+    A[git commit] -->|filtered signals| B[mcp-brain]
+    C[session end] -->|structured snapshot| B
+    B -->|~100 tokens YAML| D[Claude Code]
+    E[ticket opened] --> F[file predictor]
+    F -->|top-K + confidence| D
+    F -->|conflict detection| G[Team claims]
+    G --> D
+    H[outcome recorded] -->|precision/recall| I[feedback loop]
+    I -->|demote / supersede| B
 ```
 
 1. **Capture** — git hooks promote only high-signal events (decisions, patterns, things to avoid). Ignored: docs, chore, tests, CI noise.
@@ -183,14 +163,14 @@ flowchart TD
 ## 🧠 Memory Hierarchy
 
 <p align="center">
-  <img src="assets/memory-levels.svg" width="900" alt="Three-level memory hierarchy: L1 hot context, L2 warm context, L3 cold archive"/>
+  <img src="assets/memory-levels.svg" width="900" alt="Three-level memory hierarchy: L1 hot, L2 warm, L3 cold archive"/>
 </p>
 
 Memories aren't dumped into one bag. They're **scored and tiered**, so the high-token slot in your prompt only carries what's signal-dense for *this* moment:
 
-* **L1 — hot context** loads automatically every session. Stack, conventions, current branch, recent commits, team claims, active high-confidence decisions. Capped at ~70 tokens.
-* **L2 — warm context** loads only on demand (`brain_get_decisions`). Historical reasoning, superseded patterns, the *why* behind a past trade-off.
-* **L3 — cold archive** is never sent to the model. Kept for audit, transparency, and the lifecycle's "undo" path.
+- **L1 — hot context** loads automatically every session. Stack, conventions, current branch, recent commits, team claims, active high-confidence decisions. Capped at ~70 tokens.
+- **L2 — warm context** loads only on demand (`brain_get_decisions`). Historical reasoning, superseded patterns, the *why* behind a past trade-off.
+- **L3 — cold archive** is never sent to the model. Kept for audit, transparency, and the lifecycle's "undo" path.
 
 The score is a transparent linear formula — no black-box embedding similarity. Every memory's level is reproducible and explainable.
 
@@ -199,16 +179,16 @@ The score is a transparent linear formula — no black-box embedding similarity.
 ## 🔍 Prediction Pipeline
 
 <p align="center">
-  <img src="assets/prediction-pipeline.svg" width="950" alt="Prediction pipeline: BM25 and IDF scoring, graph expansion, optional semantic rerank"/>
+  <img src="assets/prediction-pipeline.svg" width="950" alt="Prediction pipeline: BM25 → graph expansion → semantic rerank"/>
 </p>
 
 The predictor is **three deterministic stages**:
 
-| Stage                               | What it does                                                                                    | Cost   |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------- | ------ |
-| **1. BM25 + IDF**                   | Tokenize issue, match against symbols / identifiers / paths in an inverted index                | ~5 ms  |
-| **2. Graph expansion**              | Walk `imports` / `imported_by` / `called_by` from seeds. Score decays per hop (`×0.5`, `×0.25`) | ~10 ms |
-| **3. Semantic rerank** *(optional)* | MiniLM (80 MB, CPU/GPU) embeds query + candidates, blends 30% cosine sim with 70% BM25          | ~50 ms |
+| Stage | What it does | Cost |
+|---|---|---|
+| **1. BM25 + IDF** | Tokenize issue, match against symbols / identifiers / paths in an inverted index | ~5 ms |
+| **2. Graph expansion** | Walk `imports` / `imported_by` / `called_by` from seeds. Score decays per hop (`×0.5`, `×0.25`) | ~10 ms |
+| **3. Semantic rerank** *(optional)* | MiniLM (80 MB, CPU/GPU) embeds query + candidates, blends 30% cosine sim with 70% BM25 | ~50 ms |
 
 Every prediction comes back with a `why` field and a full `breakdown`, so you can audit *why* a file was suggested — no opaque ranking.
 
@@ -219,14 +199,14 @@ Every prediction comes back with a `why` field and a full `breakdown`, so you ca
 ## 🔄 Decision Lifecycle
 
 <p align="center">
-  <img src="assets/decision-lifecycle.svg" width="950" alt="Decision lifecycle: active memories become suspect, stale, or superseded over time and through feedback"/>
+  <img src="assets/decision-lifecycle.svg" width="950" alt="Decision lifecycle: active → suspect → stale → superseded"/>
 </p>
 
 Memories aren't immortal. mcp-brain **assumes you'll change your mind** and bakes the lifecycle in:
 
-* **Age-based decay** — after `SUSPECT_DAYS` a memory gets flagged for re-verification. After `STALE_DAYS` it's hidden from prompts.
-* **Semantic supersession** — write a new memory similar (cosine ≥ 0.85) to an old one and the old one is auto-marked `superseded`.
-* **Feedback loop** — when a memory is shown 3+ times before a *reverted* ticket, it gets demoted automatically. Noisy memories die fast.
+- **Age-based decay** — after `SUSPECT_DAYS` a memory gets flagged for re-verification. After `STALE_DAYS` it's hidden from prompts.
+- **Semantic supersession** — write a new memory similar (cosine ≥ 0.85) to an old one and the old one is auto-marked `superseded`.
+- **Feedback loop** — when a memory is shown 3+ times before a *reverted* ticket, it gets demoted automatically. Noisy memories die fast.
 
 This is what makes mcp-brain **safe to leave running for months** without manual cleanup. The L1 stays small and trustworthy; the L3 archives the audit trail.
 
@@ -235,7 +215,7 @@ This is what makes mcp-brain **safe to leave running for months** without manual
 ## 🏗️ Architecture
 
 <p align="center">
-  <img src="assets/architecture.svg" width="850" alt="mcp-brain architecture: Claude Code talks to the MCP tools layer, which uses memory retrieval, file prediction, feedback, observability, and local SQLite storage"/>
+  <img src="assets/architecture.svg" width="850" alt="Architecture diagram"/>
 </p>
 
 ```mermaid
@@ -289,43 +269,42 @@ mcp-brain/
 ## 📊 Benchmark Results
 
 <p align="center">
-  <img src="assets/benchmark-results.svg" width="950" alt="SWE-bench Full benchmark results: Hit@K, Recall@K, MAP@K, and comparison vs literature"/>
+  <img src="assets/benchmark-results.svg" width="950" alt="SWE-bench Full benchmark results: Hit@K and comparison vs literature"/>
 </p>
 
 We benchmark **file localization** — *given a real GitHub issue, can mcp-brain rank the production files the accepted patch actually modified?*
 
 ### Dataset: SWE-bench Full
 
-* **2294 real Python bug-fix tasks** from major OSS projects (astropy, django, flask, matplotlib, pandas, pytest, requests, scikit-learn, sphinx, sympy, xarray)
-* Ground truth = files modified in the accepted reference patch (test files **excluded** by default — strict production-file evaluation)
+- **2294 real Python bug-fix tasks** from major OSS projects (astropy, django, flask, matplotlib, pandas, pytest, requests, scikit-learn, sphinx, sympy, xarray)
+- Ground truth = files modified in the accepted reference patch (test files **excluded** by default — strict production-file evaluation)
 
 ### Results — `mcp-brain` v0.1 (BM25 + graph + semantic)
 
-| Metric     |    @1 |    @3 |    @5 |       @10 |
-| ---------- | ----: | ----: | ----: | --------: |
+| Metric | @1 | @3 | @5 | @10 |
+|---|---:|---:|---:|---:|
 | **Hit**    | 24.5% | 43.4% | 53.7% | **63.4%** |
-| **Recall** | 20.1% | 36.6% | 46.1% |     55.8% |
-| **MAP**    | 24.5% | 28.4% | 30.4% |     31.8% |
+| **Recall** | 20.1% | 36.6% | 46.1% | 55.8% |
+| **MAP**    | 24.5% | 28.4% | 30.4% | 31.8% |
 
-* **Instances evaluated**: 2294
-* **Errors**: 5 (0.2% failure rate)
-* **Avg gold files per issue**: 1.66
-* **Avg predicted files**: 9.98 (top-10)
+- **Instances evaluated**: 2294
+- **Errors**: 5 (0.2% failure rate)
+- **Avg gold files per issue**: 1.66
+- **Avg predicted files**: 9.98 (top-10)
 
 ### Honest comparison vs. literature
 
-| System                  | Hit@10 (file loc.) | Cost per query | Notes                             |
-| ----------------------- | ------------------ | -------------- | --------------------------------- |
-| BM25 baseline (vanilla) | ~45–55%            | free           | symbol search only                |
-| **mcp-brain v0.1**      | **63.4%**          | **free**       | BM25 + graph + semantic, zero LLM |
-| Agentless / SWE-agent   | ~70–85%            | $0.10–$2       | LLM-based, multi-step             |
+| System | Hit@10 (file loc.) | Cost per query | Notes |
+|---|---|---|---|
+| BM25 baseline (vanilla) | ~45–55% | free | symbol search only |
+| **mcp-brain v0.1** | **63.4%** | **free** | BM25 + graph + semantic, zero LLM |
+| Agentless / SWE-agent | ~70–85% | $0.10–$2 | LLM-based, multi-step |
 
 **Reading the numbers:**
-
-* `Hit@5 = 53.7%` → in **more than half** of real issues, the right production file is in top-5 *before Claude reads a single byte*.
-* `Hit@10 = 63.4%` → expanded to top-10, almost **2 issues out of 3** have the right file ranked.
-* `MAP@1 = 24.5%` → the very first prediction is dead-on for **1 issue out of 4**.
-* `0.2% error rate` over 2294 runs → robust pipeline.
+- `Hit@5 = 53.7%` → in **more than half** of real issues, the right production file is in top-5 *before Claude reads a single byte*.
+- `Hit@10 = 63.4%` → expanded to top-10, almost **2 issues out of 3** have the right file ranked.
+- `MAP@1 = 24.5%` → the very first prediction is dead-on for **1 issue out of 4**.
+- `0.2% error rate` over 2294 runs → robust pipeline.
 
 ### Reproduce it yourself
 
@@ -357,28 +336,28 @@ The harness also supports SWE-bench Lite (300 instances), SWE-bench Verified, Be
 ## 💰 Token Efficiency
 
 <p align="center">
-  <img src="assets/cost-optimization.svg" width="950" alt="Cost optimization: from 2000-5500 orientation tokens per session to roughly 650 tokens with mcp-brain"/>
+  <img src="assets/costOptimization.svg" width="950" alt="Cost optimization: from 2000-5500 tokens/session to ~650"/>
 </p>
 
 ### The math
 
 A typical Claude Code session **without** mcp-brain spends thousands of tokens just to orient itself:
 
-| Phase (no mcp-brain)  | Action                                          | ~Tokens       |
-| --------------------- | ----------------------------------------------- | ------------- |
-| Session start         | List directory, read README, sample files       | 800–2000      |
-| Issue handling        | Grep symbols, follow imports, retry wrong files | 1000–3000     |
-| Context restore       | Re-explain project conventions                  | 200–500       |
-| **Total per session** |                                                 | **2000–5500** |
+| Phase (no mcp-brain) | Action | ~Tokens |
+|---|---|---|
+| Session start | List directory, read README, sample files | 800–2000 |
+| Issue handling | Grep symbols, follow imports, retry wrong files | 1000–3000 |
+| Context restore | Re-explain project conventions | 200–500 |
+| **Total per session** | | **2000–5500** |
 
 A session **with** mcp-brain:
 
-| Phase (with mcp-brain) | Action                                           | ~Tokens  |
-| ---------------------- | ------------------------------------------------ | -------- |
-| Session start          | `brain_get_context` returns compressed L1 YAML   | **~100** |
-| Issue handling         | `brain_predict_files` returns ranked top-K + why | **~250** |
-| Decision recall        | `brain_get_decisions` (only when needed)         | ~300     |
-| **Total per session**  |                                                  | **~650** |
+| Phase (with mcp-brain) | Action | ~Tokens |
+|---|---|---|
+| Session start | `brain_get_context` returns compressed L1 YAML | **~100** |
+| Issue handling | `brain_predict_files` returns ranked top-K + why | **~250** |
+| Decision recall | `brain_get_decisions` (only when needed) | ~300 |
+| **Total per session** | | **~650** |
 
 ### Estimated saving
 
@@ -388,16 +367,14 @@ A session **with** mcp-brain:
   Per session:      2000–5500 ──►       450–950 tokens      40–80%
   Per developer*:   ~1.2M/month ──►    ~400k/month          ~65%
 ```
-
 <sub>*assuming 100 sessions/month/dev</sub>
 
 ### Why this works
-
-* ✅ **No embeddings required** for retrieval (BM25 + code graph)
-* ✅ **No vector DB** to query (zero round-trip cost)
-* ✅ **No history replay** — context is *reconstructed*, not *re-scrolled*
-* ✅ **YAML compression** with `default_flow_style=True` and empty-key stripping
-* ✅ **L1/L2 split** — heavy memory only loaded on demand
+- ✅ **No embeddings required** for retrieval (BM25 + code graph)
+- ✅ **No vector DB** to query (zero round-trip cost)
+- ✅ **No history replay** — context is *reconstructed*, not *re-scrolled*
+- ✅ **YAML compression** with `default_flow_style=True` and empty-key stripping
+- ✅ **L1/L2 split** — heavy memory only loaded on demand
 
 > 💡 The semantic reranker (`use_semantic=True`) is **on by default** and runs locally on CPU/GPU. It does not add LLM cost. Disable with `MCP_BRAIN_SEMANTIC=0` for lean CI.
 
@@ -414,10 +391,9 @@ pip install -e ".[all]"
 ```
 
 The `[all]` extra installs:
-
-* **language parsers** (Python, JS, TS, Go, Rust, Java, C#) for the code graph
-* **semantic reranker** (sentence-transformers + numpy)
-* **dev tooling** (pytest, pytest-cov)
+- **language parsers** (Python, JS, TS, Go, Rust, Java, C#) for the code graph
+- **semantic reranker** (sentence-transformers + numpy)
+- **dev tooling** (pytest, pytest-cov)
 
 ### Lean install paths
 
@@ -454,19 +430,19 @@ That's it. Open Claude Code in your repo and the L1 context is automatically ava
 
 ## 🧠 MCP Tools
 
-| Tool                   | Purpose                                     | When Claude calls it           |
-| ---------------------- | ------------------------------------------- | ------------------------------ |
-| `brain_init`           | Register project, stack, conventions        | Once per repo                  |
-| `brain_get_context`    | Load L1 context (~70 tokens)                | Every session start            |
-| `brain_get_decisions`  | Load L2 decisions on demand                 | When historical context needed |
-| `brain_remember`       | Store a memory; level auto-assigned         | When user makes a decision     |
-| `brain_save_session`   | Save end-of-session snapshot                | At session end                 |
-| `brain_predict_files`  | Issue → ranked file list with `why`         | When opening a ticket          |
-| `brain_start_ticket`   | Start ticket workflow + conflict check      | Workflow orchestration         |
-| `brain_record_outcome` | Log ticket outcome (completed/reverted/...) | After ticket closed            |
-| `brain_feedback_stats` | Precision/recall window                     | Health checks                  |
-| `brain_memory_health`  | Surface noisy memories                      | Debugging                      |
-| `brain_observability`  | Full unified dashboard (YAML)               | Ops / CI                       |
+| Tool | Purpose | When Claude calls it |
+|---|---|---|
+| `brain_init` | Register project, stack, conventions | Once per repo |
+| `brain_get_context` | Load L1 context (~70 tokens) | Every session start |
+| `brain_get_decisions` | Load L2 decisions on demand | When historical context needed |
+| `brain_remember` | Store a memory; level auto-assigned | When user makes a decision |
+| `brain_save_session` | Save end-of-session snapshot | At session end |
+| `brain_predict_files` | Issue → ranked file list with `why` | When opening a ticket |
+| `brain_start_ticket` | Start ticket workflow + conflict check | Workflow orchestration |
+| `brain_record_outcome` | Log ticket outcome (completed/reverted/...) | After ticket closed |
+| `brain_feedback_stats` | Precision/recall window | Health checks |
+| `brain_memory_health` | Surface noisy memories | Debugging |
+| `brain_observability` | Full unified dashboard (YAML) | Ops / CI |
 
 ### Example L1 context output (~100 tokens)
 
@@ -495,22 +471,19 @@ decisions:
 ## 💼 Use Cases
 
 ### 🎯 Solo developer
-
-* Cuts session-start exploration: **−90% tokens** on the first turn
-* Remembers your "I always do it this way" patterns
-* Auto-supersedes decisions when you change your mind
+- Cuts session-start exploration: **−90% tokens** on the first turn
+- Remembers your "I always do it this way" patterns
+- Auto-supersedes decisions when you change your mind
 
 ### 👥 Small team (3–10 devs)
-
-* **Conflict detection** before two devs touch the same files
-* Shared decision log with lifecycle (no more "wait, didn't we decide…?")
-* File ownership inference from git history
+- **Conflict detection** before two devs touch the same files
+- Shared decision log with lifecycle (no more "wait, didn't we decide…?")
+- File ownership inference from git history
 
 ### 🏢 Enterprise (with caveats)
-
-* Local-first, no data leaves the machine → **GDPR / SOC2-friendly**
-* Compatible with Managed Identity / on-prem deployments (no cloud calls)
-* Token saving compounds: 65% × 100 devs × 100 sessions/month → **measurable infra savings**
+- Local-first, no data leaves the machine → **GDPR / SOC2-friendly**
+- Compatible with Managed Identity / on-prem deployments (no cloud calls)
+- Token saving compounds: 65% × 100 devs × 100 sessions/month → **measurable infra savings**
 
 ---
 
@@ -520,49 +493,42 @@ decisions:
 <summary><b>Is this a RAG system or a vector DB?</b></summary>
 
 **No, and on purpose.** mcp-brain is a *structured awareness layer*, not a retrieval-over-embeddings layer. The core retrieval is BM25 + code graph expansion — fully deterministic, sub-100ms, no vector DB to maintain. The semantic reranker is an optional 30% blend on top, used only as a tiebreaker. This is why token cost stays predictable and infra is local-first.
-
 </details>
 
 <details>
 <summary><b>Why not just use Claude's native context window? It's huge now.</b></summary>
 
 A long context window doesn't fix the problem — it makes it cheaper to *waste*. The bottleneck isn't capacity, it's **signal density**. Pasting your whole repo into the context still leaves Claude searching for the right file linearly. mcp-brain pre-ranks reality so the model spends its attention on the right 3 files, not the wrong 30.
-
 </details>
 
 <details>
 <summary><b>Will it leak my code or memories anywhere?</b></summary>
 
 No. Storage is SQLite under `~/.mcp-brain/` (local) and `<repo>/.brain/shared/` (versioned with git if you choose). No outbound network calls, no telemetry, no cloud component. The semantic model runs on your CPU/GPU. This makes mcp-brain compatible with GDPR-restricted and air-gapped environments.
-
 </details>
 
 <details>
 <summary><b>What if I disagree with a decision mcp-brain remembers?</b></summary>
 
 Write a new memory that contradicts it. Semantic supersession (cosine ≥ 0.85) will auto-mark the old one as `superseded`. You can also manually demote via `brain_memory_health` or wait for age-based decay (`SUSPECT_DAYS` / `STALE_DAYS`). The lifecycle assumes you'll change your mind.
-
 </details>
 
 <details>
 <summary><b>Does it work with languages other than Python?</b></summary>
 
 Yes for indexing/predicting (BM25 is language-agnostic). The code graph currently supports **Python, JavaScript, TypeScript, Go, Rust, Java, C#** via tree-sitter parsers. Adding a new language is a single registry entry — see `src/brain/parsers.py`.
-
 </details>
 
 <details>
 <summary><b>How does it compare to SWE-agent / Aider / Cursor?</b></summary>
 
 Different layer of the stack. SWE-agent and similar tools are **autonomous coders** — they read, plan, and patch via LLM calls. mcp-brain is the **awareness layer underneath** them. You could pair it with Aider or any MCP-compatible client; it makes whatever LLM you use start from a smarter zero.
-
 </details>
 
 <details>
 <summary><b>What's the catch?</b></summary>
 
 Honest answer: file prediction is heuristic. `Hit@1 = 24.5%` means 3 issues out of 4 still need Claude to validate the prediction before acting. mcp-brain *orients*, it doesn't *replace* exploration. That's also why it's free — it's a force multiplier, not an oracle.
-
 </details>
 
 ---
@@ -571,40 +537,38 @@ Honest answer: file prediction is heuristic. `Hit@1 = 24.5%` means 3 issues out 
 
 I'm honest about what this is and isn't.
 
-| Strength                                      | Limitation                                                             |
-| --------------------------------------------- | ---------------------------------------------------------------------- |
-| ✅ Zero LLM cost for retrieval                 | ⚠️ Heuristic-based: edge cases with no symbol/path overlap can miss    |
-| ✅ Sub-100ms predictions                       | ⚠️ Requires good commit hygiene (semantic commit messages help)        |
-| ✅ Local-first, no cloud                       | ⚠️ No cross-machine sync out of the box (use git for `.brain/shared/`) |
-| ✅ Deterministic (replays produce same output) | ⚠️ Hit@1 = 24.5% → orients, doesn't replace exploration                |
-| ✅ Works on any size repo                      | ⚠️ Best on medium/large repos (small repos don't benefit much)         |
+| Strength | Limitation |
+|---|---|
+| ✅ Zero LLM cost for retrieval | ⚠️ Heuristic-based: edge cases with no symbol/path overlap can miss |
+| ✅ Sub-100ms predictions | ⚠️ Requires good commit hygiene (semantic commit messages help) |
+| ✅ Local-first, no cloud | ⚠️ No cross-machine sync out of the box (use git for `.brain/shared/`) |
+| ✅ Deterministic (replays produce same output) | ⚠️ Hit@1 = 24.5% → orients, doesn't replace exploration |
+| ✅ Works on any size repo | ⚠️ Best on medium/large repos (small repos don't benefit much) |
 
 **This is NOT**:
-
-* ❌ a vector DB memory
-* ❌ a RAG system
-* ❌ an SWE-agent / autonomous coder
-* ❌ a checkpoint / replay tool
+- ❌ a vector DB memory
+- ❌ a RAG system
+- ❌ an SWE-agent / autonomous coder
+- ❌ a checkpoint / replay tool
 
 **This IS**:
-
-* ✅ a repo-aware, team-aware, **token-efficient awareness layer**
-* ✅ a force multiplier for Claude Code, not a replacement
+- ✅ a repo-aware, team-aware, **token-efficient awareness layer**
+- ✅ a force multiplier for Claude Code, not a replacement
 
 ---
 
 ## 🛣️ Roadmap
 
-* [x] BM25 + code graph + semantic reranker
-* [x] Decision lifecycle with semantic supersession
-* [x] Feedback loop with precision/recall reconciliation
-* [x] Observability dashboard
-* [x] SWE-bench Full benchmark (2294 instances)
-* [x] Multi-language code graph (Python, JS, TS, Go, Rust, Java, C#)
-* [ ] Cross-repo memory federation (opt-in)
-* [ ] Real-time conflict push (currently pull-based)
-* [ ] VS Code extension companion
-* [ ] Hosted shared `.brain/` for distributed teams (still local-first per dev)
+- [x] BM25 + code graph + semantic reranker
+- [x] Decision lifecycle with semantic supersession
+- [x] Feedback loop with precision/recall reconciliation
+- [x] Observability dashboard
+- [x] SWE-bench Full benchmark (2294 instances)
+- [x] Multi-language code graph (Python, JS, TS, Go, Rust, Java, C#)
+- [ ] Cross-repo memory federation (opt-in)
+- [ ] Real-time conflict push (currently pull-based)
+- [ ] VS Code extension companion
+- [ ] Hosted shared `.brain/` for distributed teams (still local-first per dev)
 
 ---
 

@@ -1,0 +1,130 @@
+<svg viewBox="0 0 1100 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mcp-brain decision lifecycle state machine">
+  <defs>
+    <linearGradient id="bgL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a33"/>
+    </linearGradient>
+    <linearGradient id="accentL" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <pattern id="gridL" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <marker id="arrowL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowLs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ec4899"/>
+    </marker>
+    <filter id="glowL" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1100" height="480" fill="url(#bgL)"/>
+  <rect width="1100" height="480" fill="url(#gridL)"/>
+
+  <!-- Header -->
+  <text x="60" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">Decision Lifecycle — self-healing memory</text>
+  <text x="60" y="84" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#94a3b8">Memories age, get challenged, and get replaced. Claude never acts on stale decisions.</text>
+  <rect x="60" y="96" width="80" height="3" rx="2" fill="url(#accentL)"/>
+
+  <!-- States: 4 nodes on a horizontal line -->
+  <!-- Y centerline = 230 -->
+
+  <!-- ACTIVE -->
+  <g transform="translate(80, 170)" filter="url(#glowL)">
+    <rect x="0" y="0" width="200" height="120" rx="14" fill="#0d1430" stroke="#22c55e" stroke-opacity="0.7" stroke-width="2"/>
+    <circle cx="28" cy="28" r="10" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e" stroke-width="2"/>
+    <circle cx="28" cy="28" r="4" fill="#22c55e"/>
+    <text x="46" y="32" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#86efac" letter-spacing="1.5">STATE 01</text>
+    <text x="20" y="62" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#ffffff">active</text>
+    <text x="20" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">Loaded into L1 / L2,</text>
+    <text x="20" y="102" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">trusted by Claude.</text>
+  </g>
+
+  <!-- SUSPECT -->
+  <g transform="translate(330, 170)" filter="url(#glowL)">
+    <rect x="0" y="0" width="200" height="120" rx="14" fill="#0d1430" stroke="#f59e0b" stroke-opacity="0.6" stroke-width="2"/>
+    <circle cx="28" cy="28" r="10" fill="#f59e0b" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2"/>
+    <text x="28" y="32" text-anchor="middle" font-family="ui-sans-serif, sans-serif" font-size="14" font-weight="700" fill="#fbbf24">?</text>
+    <text x="46" y="32" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#fbbf24" letter-spacing="1.5">STATE 02</text>
+    <text x="20" y="62" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#ffffff">suspect</text>
+    <text x="20" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">Still shown, flagged</text>
+    <text x="20" y="102" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">to verify.</text>
+  </g>
+
+  <!-- STALE -->
+  <g transform="translate(580, 170)" filter="url(#glowL)">
+    <rect x="0" y="0" width="200" height="120" rx="14" fill="#0d1430" stroke="#ef4444" stroke-opacity="0.6" stroke-width="2"/>
+    <circle cx="28" cy="28" r="10" fill="#ef4444" fill-opacity="0.3" stroke="#ef4444" stroke-width="2"/>
+    <line x1="22" y1="22" x2="34" y2="34" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="22" x2="22" y2="34" stroke="#fca5a5" stroke-width="2" stroke-linecap="round"/>
+    <text x="46" y="32" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#fca5a5" letter-spacing="1.5">STATE 03</text>
+    <text x="20" y="62" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#ffffff">stale</text>
+    <text x="20" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">Hidden from prompts,</text>
+    <text x="20" y="102" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">demoted to L3.</text>
+  </g>
+
+  <!-- SUPERSEDED -->
+  <g transform="translate(830, 170)" filter="url(#glowL)">
+    <rect x="0" y="0" width="200" height="120" rx="14" fill="#0d1430" stroke="#64748b" stroke-opacity="0.7" stroke-width="2"/>
+    <circle cx="28" cy="28" r="10" fill="#475569" fill-opacity="0.5" stroke="#64748b" stroke-width="2"/>
+    <path d="M 22 28 L 27 33 L 36 22" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="46" y="32" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#cbd5e1" letter-spacing="1.5">STATE 04</text>
+    <text x="20" y="62" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#ffffff">superseded</text>
+    <text x="20" y="86" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">A newer memory took</text>
+    <text x="20" y="102" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">its place.</text>
+  </g>
+
+  <!-- Transition arrows + labels -->
+  <g font-family="ui-monospace, monospace" font-size="11" fill="#94a3b8">
+    <!-- active → suspect -->
+    <line x1="280" y1="230" x2="330" y2="230" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrowL)"/>
+    <text x="305" y="218" text-anchor="middle" fill="#fbbf24" font-weight="700">age &gt; 30d</text>
+    <!-- suspect → stale -->
+    <line x1="530" y1="230" x2="580" y2="230" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrowL)"/>
+    <text x="555" y="218" text-anchor="middle" fill="#fca5a5" font-weight="700">age &gt; 90d</text>
+    <!-- stale → superseded -->
+    <line x1="780" y1="230" x2="830" y2="230" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrowL)"/>
+    <text x="805" y="218" text-anchor="middle" fill="#cbd5e1" font-weight="700">replaced</text>
+  </g>
+
+  <!-- Side path: feedback fast-track -->
+  <g transform="translate(0, 0)">
+    <path d="M 180 290 Q 180 360, 480 360 Q 680 360, 680 290" stroke="#ec4899" stroke-width="1.8" fill="none" stroke-dasharray="4 4" marker-end="url(#arrowLs)"/>
+    <g transform="translate(360, 350)">
+      <rect x="0" y="0" width="240" height="22" rx="11" fill="#ec4899" fill-opacity="0.15" stroke="#ec4899" stroke-opacity="0.6"/>
+      <text x="120" y="15" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#f9a8d4">feedback: shown 3× → reverted ticket</text>
+    </g>
+  </g>
+
+  <!-- Side path: semantic supersession -->
+  <g transform="translate(0, 0)">
+    <path d="M 180 170 Q 180 120, 480 120 Q 930 120, 930 170" stroke="#06b6d4" stroke-width="1.8" fill="none" stroke-dasharray="4 4" marker-end="url(#arrowL)"/>
+    <g transform="translate(380, 108)">
+      <rect x="0" y="0" width="240" height="22" rx="11" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-opacity="0.6"/>
+      <text x="120" y="15" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#67e8f0">semantic similarity ≥ 0.85 with new memory</text>
+    </g>
+  </g>
+
+  <!-- Bottom legend -->
+  <g transform="translate(60, 410)" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">
+    <text x="0" y="0" font-weight="700" fill="#cbd5e1">Triggers:</text>
+    <g transform="translate(78, -10)">
+      <rect x="0" y="0" width="14" height="14" rx="3" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="22" y="11" fill="#94a3b8">age (configurable: SUSPECT_DAYS / STALE_DAYS)</text>
+    </g>
+    <g transform="translate(360, -10)">
+      <rect x="0" y="0" width="14" height="14" rx="3" fill="none" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <text x="22" y="11" fill="#94a3b8">feedback loop (shown N× before reverted ticket)</text>
+    </g>
+    <g transform="translate(680, -10)">
+      <rect x="0" y="0" width="14" height="14" rx="3" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <text x="22" y="11" fill="#94a3b8">semantic supersession (cosine ≥ 0.85)</text>
+    </g>
+  </g>
+</svg>

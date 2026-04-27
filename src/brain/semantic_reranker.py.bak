@@ -1,17 +1,15 @@
 """
-Layer semantico per il predictor.
+Layer semantico per il predictor .
 
 Come funziona:
 
-1. Di default, il layer è ATTIVO (`use_semantic=True` nei chiamanti).
-   Il modello viene caricato lazy alla prima chiamata di `rerank()`,
-   poi rimane in cache singleton thread-safe per tutto il processo.
+1. Di default, il layer è DISABILITATO: niente dipendenze attive,
+   nessun modello caricato, zero costo runtime.
 
 2. Quando `rerank()` viene chiamato:
    - Se `sentence-transformers` non è installato → ritorna i candidate
-     invariati (fallback graceful) e logga UN warning una-tantum.
-   - Se `MCP_BRAIN_SEMANTIC=0` è nell'env → stessa cosa, con messaggio
-     dedicato che cita il kill-switch.
+     invariati (fallback graceful)
+   - Se `MCP_BRAIN_SEMANTIC=0` è nell'env → stessa cosa
    - Altrimenti carica il modello (cached singleton), embeddizza la query
      e i doc, calcola cosine similarity, e blenda con il BM25 score.
 
@@ -20,18 +18,13 @@ Come funziona:
    semantic serve a "raffinare il ranking" fra candidate con score BM25
    simili (tiebreaker informato).
 
-Dipendenza obbligatoria (in `pyproject.toml > dependencies`):
-    sentence-transformers, numpy
-
-Kill-switch a runtime (utile in CI lean / container slim):
-    export MCP_BRAIN_SEMANTIC=0     # bash/zsh
-    $env:MCP_BRAIN_SEMANTIC = '0'   # PowerShell
+Dipendenza opzionale installabile con:
+    pip install sentence-transformers
 
 Modello di default: all-MiniLM-L6-v2 (~80 MB, veloce, CPU-friendly, 384-dim).
 """
 from __future__ import annotations
 
-import logging
 import os
 import threading
 from typing import Any, Dict, List, Optional
@@ -42,11 +35,6 @@ DEFAULT_MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
 # Cache singleton del modello (thread-safe)
 _MODEL_CACHE: Dict[str, Any] = {}
 _MODEL_LOCK = threading.Lock()
-
-# Flag per emettere il warning "lib non disponibile" UNA SOLA volta per processo.
-# Esposto a livello modulo per poterlo resettare nei test.
-_WARNED_UNAVAILABLE: bool = False
-_WARN_LOCK = threading.Lock()
 
 
 # ------------------------------------------------------------------
@@ -63,42 +51,6 @@ def is_available() -> bool:
         return True
     except Exception:
         return False
-
-
-def _warn_unavailable_once() -> None:
-    """
-    Emette un `logging.warning` UNA volta per processo quando il rerank
-    semantico viene richiesto ma il layer non è disponibile.
-
-    Distingue due cause:
-      - kill-switch attivo (`MCP_BRAIN_SEMANTIC=0`)
-      - libreria mancante (sentence-transformers / numpy)
-
-    Idempotente: dopo la prima emissione, no-op fino al reset esplicito di
-    `_WARNED_UNAVAILABLE` (usato dai test).
-    """
-    global _WARNED_UNAVAILABLE
-    if _WARNED_UNAVAILABLE:
-        return
-    with _WARN_LOCK:
-        if _WARNED_UNAVAILABLE:
-            return
-        _WARNED_UNAVAILABLE = True
-
-    if os.environ.get('MCP_BRAIN_SEMANTIC', '1') == '0':
-        reason = "kill-switch attivo (env MCP_BRAIN_SEMANTIC=0)"
-    else:
-        reason = (
-            "sentence-transformers o numpy non installati "
-            "(pip install -e \".[semantic]\" oppure pip install sentence-transformers numpy)"
-        )
-
-    logging.warning(
-        "[mcp-brain] Semantic reranker richiesto ma NON attivo: %s. "
-        "Procedo con BM25+graph puro (fallback graceful). "
-        "Questo warning viene emesso una sola volta per processo.",
-        reason,
-    )
 
 
 def _get_device() -> str:
@@ -164,9 +116,8 @@ def rerank(
     """
     Riordina `candidates` (list di {file, score, ...}) con similarity semantica.
 
-    - Se semantic non disponibile → ritorna candidates inalterata + WARNING una-tantum.
-    - Se candidates è vuota → ritorna candidates inalterata, NESSUN warning
-      (non è un problema: solo nessun candidato da reranker).
+    - Se semantic non disponibile → ritorna candidates inalterata.
+    - Se candidates è vuota → ritorna candidates inalterata.
     - Su QUALSIASI eccezione nel forward del modello → ritorna candidates
       inalterata (fallback graceful: meglio un ranking BM25 corretto che
       un crash).
@@ -178,7 +129,6 @@ def rerank(
     if not candidates:
         return candidates
     if not is_available():
-        _warn_unavailable_once()
         return candidates
 
     if index is None:
@@ -199,6 +149,8 @@ def rerank(
         texts.append(_build_doc_text(c['file'], data))
 
     try:
+        import sys
+        import time
         import numpy as np
 
         model = _get_model(model_name)
