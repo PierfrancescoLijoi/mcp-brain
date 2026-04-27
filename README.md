@@ -299,7 +299,7 @@ We benchmark **file localization** — *given a real GitHub issue, can mcp-brain
 * **2294 real Python bug-fix tasks** from major OSS projects (astropy, django, flask, matplotlib, pandas, pytest, requests, scikit-learn, sphinx, sympy, xarray)
 * Ground truth = files modified in the accepted reference patch (test files **excluded** by default — strict production-file evaluation)
 
-### Results — `mcp-brain` v0.1 (BM25 + graph + semantic)
+### Results — `mcp-brain` v1.4.0 (BM25 + graph + semantic)
 
 | Metric     |    @1 |    @3 |    @5 |       @10 |
 | ---------- | ----: | ----: | ----: | --------: |
@@ -315,9 +315,9 @@ We benchmark **file localization** — *given a real GitHub issue, can mcp-brain
 ### Honest comparison vs. literature
 
 | System                  | Hit@10 (file loc.) | Cost per query | Notes                             |
-| ----------------------- | ------------------ | -------------- | --------------------------------- |
+|-------------------------| ------------------ | -------------- | --------------------------------- |
 | BM25 baseline (vanilla) | ~45–55%            | free           | symbol search only                |
-| **mcp-brain v0.1**      | **63.4%**          | **free**       | BM25 + graph + semantic, zero LLM |
+| **mcp-brain v1.4.0**    | **63.4%**          | **free**       | BM25 + graph + semantic, zero LLM |
 | Agentless / SWE-agent   | ~70–85%            | $0.10–$2       | LLM-based, multi-step             |
 
 **Reading the numbers:**
