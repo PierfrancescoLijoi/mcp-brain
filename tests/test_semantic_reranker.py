@@ -104,13 +104,35 @@ class TestBuildDocText:
         syms = [f'sym_{i}' for i in range(50)]
         idents = [f'ident_{i}' for i in range(50)]
         text = _build_doc_text('x.py', {'symbols': syms, 'identifiers': idents})
-        # 20 simboli + 20 identifier attesi al massimo + 1 basename
+        # Path role (max 8) + labels + max 20 symbols + 20 identifiers.
         parts = text.split()
-        assert len(parts) <= 1 + 20 + 20
+        assert len(parts) <= 54
 
     def test_handles_missing_fields(self):
         text = _build_doc_text('a.py', {})
         assert 'a' in text
+
+    def test_role_aware_text_is_deterministic_and_prefers_rare_terms(self):
+        data_a = {
+            'symbols': ['validate_payload', 'Parser'],
+            'identifiers': ['common', 'rare_domain_term', 'medium'],
+        }
+        data_b = {
+            'symbols': list(reversed(data_a['symbols'])),
+            'identifiers': list(reversed(data_a['identifiers'])),
+        }
+        df = {'common': 100, 'medium': 20, 'rare_domain_term': 1}
+
+        first = _build_doc_text(
+            'src/api/request_validator.py', data_a, df=df, total_docs=100
+        )
+        second = _build_doc_text(
+            'src/api/request_validator.py', data_b, df=df, total_docs=100
+        )
+
+        assert first == second
+        assert 'src api request validator' in first
+        assert first.index('rare_domain_term') < first.index('common')
 
 
 # ======================================================================

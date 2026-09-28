@@ -114,6 +114,27 @@ class TestDirectExpansion:
         assert handler['hops'] == 1
         assert "impact of 'src/auth.py'" in handler['why']
 
+    def test_forward_dependency_discovered_by_personalized_graph(self, fake_index):
+        fake_index({
+            'src/controller.py': {'symbols': ['handle_request'], 'identifiers': []},
+            'src/validator.py': {'symbols': ['validate_payload'], 'identifiers': []},
+        })
+        graph = _make_graph({
+            'src/controller.py': {},
+            'src/validator.py': {},
+        })
+        graph['files']['src/controller.py']['imports_to'] = [
+            {'resolved': 'src/validator.py'}
+        ]
+
+        res = predict_files_with_impact(
+            'handle_request', graph=graph, max_hops=2, use_semantic=False,
+        )
+
+        validator = next(r for r in res if r['file'] == 'src/validator.py')
+        assert validator['source'] == 'graph_expansion'
+        assert 'personalized graph rank' in validator['why']
+
     def test_direct_score_is_seed_times_0_50(self, fake_index):
         fake_index({
             'src/auth.py': {'symbols': ['login'], 'identifiers': []},

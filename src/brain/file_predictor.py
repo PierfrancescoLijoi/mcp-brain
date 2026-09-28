@@ -36,12 +36,18 @@ più forte).
 """
 from __future__ import annotations
 
+import logging
 import math
 import re
 from typing import Any, Dict, List, Optional
 
 from src.brain.file_indexer import get_or_build_index
-from src.brain.ranking_features import extract_query_features, noise_penalty, score_path_features
+from src.brain.ranking_features import (
+    extract_query_features,
+    noise_penalty,
+    production_prior,
+    score_path_features,
+)
 
 # ------------------------------------------------------------------
 # Parametri BM25 e pesatura
@@ -58,6 +64,8 @@ FILENAME_BOOST_RATIO = 0.6
 
 # Expansion graph: decadimento per hop distance
 HOP_DECAY = {1: 0.35, 2: 0.15, 3: 0.075}
+GRAPH_NAVIGATION_WEIGHT = 0.30
+GRAPH_NAVIGATION_SEEDS = 10
 
 # Soglie relative per la confidence label
 CONF_HIGH = 0.70
@@ -186,9 +194,15 @@ def predict_files_explained(
     max_bm25 = max((s['score'] for s in scores.values()), default=0.0)
     filename_boost = max_bm25 * FILENAME_BOOST_RATIO if max_bm25 > 0 else 1.0
 
+    filename_features = {}
+    for file in files_meta:
+        filename = file.replace('\\', '/').rsplit('/', 1)[-1]
+        stem = filename.rsplit('.', 1)[0].lower()
+        filename_features[file] = (stem, set(re.findall(r'[a-z0-9]+', stem)))
+
     for kw, q_weight in keyword_weights.items():
-        for file in files_meta.keys():
-            if kw in file.lower():
+        for file, (stem, stem_tokens) in filename_features.items():
+            if kw == stem or kw in stem_tokens:
                 slot = scores.setdefault(file, {'score': 0.0, 'matches': {}, 'bm25_terms': 0})
                 slot['score'] += filename_boost * min(float(q_weight), 5.0)
                 slot['matches'].setdefault('filename', []).append(kw)
@@ -306,7 +320,10 @@ def predict_files_with_impact(
       hops (0 per seed, 1..max_hops per vicini), seed (se scoperto via graph).
       Se use_semantic=True e attivo: 'semantic_score' aggiuntivo.
     """
-    seeds = predict_files_explained(title, body, index=index, top_k=max(top_k, top_k_seeds * 5))
+    candidate_pool = max(top_k * 4, top_k_seeds * 5, 30)
+    seeds = predict_files_explained(
+        title, body, index=index, top_k=candidate_pool
+    )
     if not seeds:
         return []
 
@@ -362,6 +379,52 @@ def predict_files_with_impact(
                             'matches': {},
                         }
 
+            # Reverse impact is useful for blast-radius analysis, but fault
+            # localization also needs forward dependencies. Personalized
+            # PageRank adds those candidates with degree-normalized scores.
+            try:
+                from src.brain.graph_ranker import personalized_pagerank
+
+                navigation_seeds = {
+                    item['file']: max(float(item['score']), 0.0)
+                    for item in seeds[:GRAPH_NAVIGATION_SEEDS]
+                }
+                graph_scores = personalized_pagerank(
+                    g, navigation_seeds, max_hops=max_hops
+                )
+                if graph_scores:
+                    peak_graph = max(graph_scores.values())
+                    peak_seed = max(navigation_seeds.values(), default=0.0)
+                    added_count = 0
+                    for dep_file, graph_score in sorted(
+                        graph_scores.items(),
+                        key=lambda pair: (-pair[1], pair[0]),
+                    ):
+                        if dep_file in merged or peak_graph <= 0:
+                            continue
+                        added = (
+                            peak_seed
+                            * GRAPH_NAVIGATION_WEIGHT
+                            * graph_score
+                            / peak_graph
+                        )
+                        if added <= 0:
+                            continue
+                        merged[dep_file] = {
+                            'file': dep_file,
+                            'score': added,
+                            'confidence': 'low',
+                            'why': 'personalized graph rank from lexical seeds',
+                            'source': 'graph_expansion',
+                            'hops': 1,
+                            'matches': {'graph': ['personalized_pagerank']},
+                        }
+                        added_count += 1
+                        if added_count >= max(top_k * 2, 20):
+                            break
+            except Exception:
+                pass
+
     ranked = sorted(merged.values(), key=lambda x: x['score'], reverse=True)
 
     # Ricalcola confidence relative sul ranking finale per i 'text_match'
@@ -394,4 +457,56 @@ def predict_files_with_impact(
         except Exception:
             pass  # fallback: tieni il ranking BM25 + graph
 
+    # A semantic model can strongly prefer a failing test because its text is
+    # close to the issue. The product and benchmark both target likely
+    # production modifications, so apply this prior *after* every reranker.
+    for item in ranked:
+        factor, reason = production_prior(item['file'])
+        if factor != 1.0:
+            item['score'] = round(float(item['score']) * factor, 4)
+            if reason and reason not in item['why']:
+                item['why'] = f"{item['why']}; {reason}"
+
+    ranked.sort(key=lambda item: item['score'], reverse=True)
+
+    if ranked:
+        top_score = float(ranked[0]['score'])
+        for item in ranked:
+            ratio = float(item['score']) / top_score if top_score > 0 else 0.0
+            if ratio >= CONF_HIGH:
+                item['confidence'] = 'high'
+            elif ratio >= CONF_MEDIUM:
+                item['confidence'] = 'medium'
+            else:
+                item['confidence'] = 'low'
+
     return ranked[:top_k]
+
+
+def predict_files_ranked(
+    title: str, body: str = '', top_k: int = 10, evidence: bool = False, **legacy_kwargs
+) -> List[Dict[str, Any]]:
+    """
+    Predizione "v3": localizer appreso (LambdaMART sui canali di
+    `src/brain/localizer.py`, ~64% Hit@1 / ~90% Hit@10 su SWE-bench Lite)
+    sul working tree del repository. Usa l'estrazione multi-linguaggio condivisa
+    per Python, JS/TS, Go, Rust, Java e C#; l'artefatto incluso resta addestrato
+    su repository Python e va validato prima della promozione su altri linguaggi.
+    Se il repository non è Git o non ha file candidati, ricade su
+    `predict_files_with_impact` (BM25 + grafo) con
+    `legacy_kwargs` (max_hops, use_semantic, ...).
+
+    Con `evidence=True` ogni file del localizer ha una 'evidence' card
+    (outline + finestre di codice) per la scelta finale fatta dall'agente.
+    """
+    import subprocess
+
+    from src.brain.repo_localizer import localize
+    from src.storage import paths
+
+    try:
+        results = localize(paths.BRAIN_ROOT.parent, title, body, top_k=top_k, evidence=evidence)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        logging.info('learned localizer unavailable (%s); using BM25+graph', exc)
+        results = []
+    return results or predict_files_with_impact(title, body, top_k=top_k, **legacy_kwargs)

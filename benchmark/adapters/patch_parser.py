@@ -5,6 +5,8 @@ import re
 from pathlib import PurePosixPath
 from typing import Iterable, List, Set
 
+from src.brain.localizer import is_test_path
+
 _DIFF_GIT_RE = re.compile(r"^diff --git a/(.*?) b/(.*?)$")
 _FILE_HEADER_RE = re.compile(r"^(?:---|\+\+\+)\s+(?:a|b)/(.*?)$")
 _DEV_NULL = "/dev/null"
@@ -52,17 +54,8 @@ def extract_changed_files_from_patch(patch: str, include_tests: bool = False) ->
 
 
 def is_test_file(path: str) -> bool:
-    p = path.lower()
-    parts = p.split("/")
-    name = parts[-1] if parts else p
-    return (
-        "test" in parts
-        or "tests" in parts
-        or name.startswith("test_")
-        or name.endswith("_test.py")
-        or name.endswith("_tests.py")
-        or "/testing/" in f"/{p}/"
-    )
+    """Same multi-language rule the localizer uses to drop test candidates."""
+    return is_test_path(path)
 
 
 def file_recall_at_k(predicted: Iterable[str], gold: Iterable[str], k: int) -> float:

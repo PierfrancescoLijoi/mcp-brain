@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="#-benchmark-results"><img src="https://img.shields.io/badge/SWE--bench-Hit%4010%3A%2063.4%25-success?style=for-the-badge" alt="SWE-bench Hit@10"/></a>
+  <a href="#-benchmark-results"><img src="https://img.shields.io/badge/SWE--bench%20Lite-Hit%401%3A%2063.3%25-success?style=for-the-badge" alt="SWE-bench Lite Hit@1"/></a>
   <a href="#-token-efficiency"><img src="https://img.shields.io/badge/token%20saving-65%25%20avg-blue?style=for-the-badge" alt="Token saving"/></a>
   <a href="#-quick-start"><img src="https://img.shields.io/badge/zero%20LLM%20cost-✓-purple?style=for-the-badge" alt="Zero LLM cost"/></a>
   <a href="#-quick-start"><img src="https://img.shields.io/badge/local--first-✓-22c55e?style=for-the-badge" alt="Local-first"/></a>
@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <b>The repo-aware, team-aware, token-efficient memory layer for Claude Code.</b>
+  <b>The local-first, repo-aware memory and file-localization layer for coding agents.</b>
 </p>
 
 <p align="center">
@@ -26,12 +26,15 @@
 
 ## 🚀 TL;DR
 
-**mcp-brain** is a Model Context Protocol (MCP) server that gives Claude Code persistent, structured awareness of your project — without burning tokens on context rebuilding.
+**mcp-brain** is a Model Context Protocol (MCP) server that gives coding agents persistent, structured awareness of a project — without burning tokens on context rebuilding or requiring a cloud service.
 
 |  🧠 | **Compressed awareness** in ~100 tokens instead of ~2000                       |
 | :-: | :----------------------------------------------------------------------------- |
-|  🎯 | **63.4% Hit@10** on SWE-bench Full (2294 real GitHub issues) — zero LLM cost   |
-|  ⚡  | **Sub-100ms** file prediction (BM25 + code graph + optional semantic reranker) |
+|  🎯 | **63.3% Hit@1 / 89.0% Hit@10** on held-out SWE-bench Lite — zero LLM cost     |
+|  📏 | **Calibrated reading plan**: "read 1 file, 87% right" or "uncertain, search"   |
+|  🔬 | **Self-calibration**: `mcp-brain calibrate` re-measures it on *your* Git history |
+|  🌍 | **6 languages measured**: Python, Go, Rust, Java, JavaScript, TypeScript      |
+|  ⚡  | **~1.7 s** warm prediction on a Django-sized repo, fully offline              |
 |  👥 | **Team-aware**: soft claims, conflict detection, ownership tracking            |
 |  🔄 | **Self-healing**: decision lifecycle, automatic staleness, feedback loop       |
 | 🛡️ | **Local-first**: SQLite, no cloud, no embeddings required, GDPR-friendly       |
@@ -46,6 +49,8 @@
 * [How It Works](#-how-it-works)
 * [Memory Hierarchy](#-memory-hierarchy)
 * [Prediction Pipeline](#-prediction-pipeline)
+* [Reading Plan](#-reading-plan)
+* [Self-Calibration](#-self-calibration)
 * [Decision Lifecycle](#-decision-lifecycle)
 * [Architecture](#️-architecture)
 * [Benchmark Results](#-benchmark-results)
@@ -119,9 +124,15 @@ You drop a one-line ticket into Claude Code:
 
 **Without mcp-brain**, Claude starts grep-walking the repo, reading directory listings, opening README, sampling files — burning 2000+ tokens before producing the first useful sentence.
 
-**With mcp-brain**, in <100ms Claude receives:
+**With mcp-brain**, in about two seconds and without any LLM call, Claude receives:
 
 ```yaml
+plan:
+  confidence: high
+  read_first: 1
+  expected_hit: 0.867
+  calibrated_on: "this repository (150 commits)"
+  advice: "Read the top 1 file(s) first: hit rate 87% measured on this repository (150 commits)."
 predictions:
   - file: src/auth.py
     confidence: high
@@ -174,7 +185,7 @@ flowchart TD
 
 1. **Capture** — git hooks promote only high-signal events (decisions, patterns, things to avoid). Ignored: docs, chore, tests, CI noise.
 2. **Compress** — three-level memory (L1/L2/L3) auto-assigned by a scoring function (recency 35% + frequency 30% + impact 20% + explicit 15%).
-3. **Predict** — issue title/body → ranked file list via BM25 + code graph expansion + optional semantic reranker.
+3. **Predict** — issue title/body → evidence channels → learned ranker → ranked files plus a reading plan that says how many to open.
 4. **Coordinate** — soft claims warn before two devs touch the same files.
 5. **Self-correct** — every closed ticket feeds precision/recall stats; noisy memories are auto-demoted.
 
@@ -199,20 +210,101 @@ The score is a transparent linear formula — no black-box embedding similarity.
 ## 🔍 Prediction Pipeline
 
 <p align="center">
-  <img src="assets/prediction-pipeline.svg" width="950" alt="Prediction pipeline: BM25 and IDF scoring, graph expansion, optional semantic rerank"/>
+  <img src="assets/prediction-pipeline.svg" width="950" alt="Prediction pipeline: evidence channels, LambdaMART fusion, margin-based reading plan, evidence cards, optional local verifier"/>
 </p>
 
-The predictor is **three deterministic stages**:
+Every candidate file is scored on **independent evidence channels**, then a
+LambdaMART learning-to-rank model fuses them. The model ships as plain JSON trees
+evaluated in pure Python: no NumPy, no GPU, no LLM call.
 
-| Stage                               | What it does                                                                                    | Cost   |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------- | ------ |
-| **1. BM25 + IDF**                   | Tokenize issue, match against symbols / identifiers / paths in an inverted index                | ~5 ms  |
-| **2. Graph expansion**              | Walk `imports` / `imported_by` / `called_by` from seeds. Score decays per hop (`×0.5`, `×0.25`) | ~10 ms |
-| **3. Semantic rerank** *(optional)* | MiniLM (80 MB, CPU/GPU) embeds query + candidates, blends 30% cosine sim with 70% BM25          | ~50 ms |
+| Channel             | What it looks at                                                                 |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Text**            | BM25 over code terms, the issue title alone, file paths, and public API names   |
+| **Code structure**  | Which file *defines* the mentioned symbols, qualified names, modules, importers |
+| **Hard evidence**   | Stack-trace frames, literal error strings, literal file paths in the issue      |
+| **Git history**     | Files that past fixes touched, recency, churn (only commits before HEAD)        |
 
-Every prediction comes back with a `why` field and a full `breakdown`, so you can audit *why* a file was suggested — no opaque ranking.
+Tests, build output and vendored copies (`dist/`, `build/`, `vendor/`,
+`*.min.js`) are never candidates. Every prediction comes back with a `why` and,
+on request, an **evidence card** (the matching lines), so the agent can audit
+the ranking instead of trusting it.
 
-> 💡 **Default ON.** To run lean (CI / containers without PyTorch), set `MCP_BRAIN_SEMANTIC=0` and the pipeline degrades gracefully to BM25 + graph.
+> 💡 `verify_local=true` lets a local model (llama-server, Ollama, vLLM) rerank
+> the evidence cards. Opt-in; public endpoints are refused.
+
+---
+
+## 📏 Reading Plan
+
+<p align="center">
+  <img src="assets/reading-plan.svg" width="950" alt="Calibrated reading plan: high confidence read 1 file 87% right, medium read 4 files 86%, low search first 79% in top 10"/>
+</p>
+
+A ranked list alone hides the important part: **how much to trust it**. The
+score margin between the first and second file is a reliable confidence
+signal, so every answer carries a `plan`:
+
+```yaml
+plan:
+  confidence: high          # high | medium | low
+  read_first: 1             # open this many files before editing
+  expected_hit: 0.867       # measured, not guessed
+  calibrated_on: held-out swebench_lite (300 issues)  # or "this repository (150 commits)"
+```
+
+A `low` plan is a feature, not a failure: it tells the agent to search before
+editing instead of confidently opening the wrong file.
+
+---
+
+## 🔬 Self-Calibration
+
+<p align="center">
+  <img src="assets/self-calibration.svg" width="950" alt="Self-calibration: mcp-brain calibrate replays the last 150 commits at their parent commit and stores a reading plan measured on your own repository"/>
+</p>
+
+Benchmark numbers describe other people's code. One command measures mcp-brain
+on **yours**:
+
+```bash
+mcp-brain calibrate
+```
+
+```
+measuring on up to 150 recent commits of /src/gin (local, nothing leaves this machine)...
+  150/150 commits
+measured on 150 commits in 47.0 s
+changed file found in   top-1: 70%   top-3: 89%   top-5: 95%   top-10: 98%
+reading plan (target 85%):
+  high     45 commits   read 1 file    -> 98%
+  medium   60 commits   read 3 files   -> 90%
+  low      45 commits   read 4 files   -> 87%
+saved .brain/local/calibration.json; brain_predict_files now uses it.
+```
+
+How it works: each recent commit that modified 1–5 source files becomes a test
+case. Its message plays the issue, the files it changed are the answer, and the
+index is rebuilt **at the parent commit** straight from Git objects (no
+checkout, no leakage from the future). The fitted tiers are written to
+`.brain/local/calibration.json` and every later prediction says
+`calibrated_on: this repository (150 commits)`.
+
+| Repository | Language   | Top-1 | Top-10 | Confident tier      | Time |
+| ---------- | ---------- | ----- | ------ | ------------------- | ---- |
+| gin        | Go         | 70%   | 98%    | read 1 → 98%        | 47 s |
+| gson       | Java       | 62%   | 87%    | read 1 → 89%        | 58 s |
+| preact     | JavaScript | 53%   | 86%    | read 2 → 89%        | 48 s |
+| ripgrep    | Rust       | 53%   | 92%    | read 4 → 91%        | 51 s |
+| flask      | Python     | 48%   | 92%    | one tier: read 7 → 87% | 39 s |
+| vue core   | TypeScript | 48%   | 86%    | read 2 → 89%        | 78 s |
+
+**Is a commit message a fair stand-in for an issue?** It is a harder one.
+On the 291 SWE-bench Lite issues linked to their fix commits, plans fitted on
+the commit messages promised 85% and delivered **91–95%** on the real issue
+text. The local plan errs on the side of reading one file more.
+
+When the margin does not separate a repository's commits (Flask above), the
+plan falls back to one honest tier instead of inventing confidence.
 
 ---
 
@@ -288,11 +380,63 @@ mcp-brain/
 
 ## 📊 Benchmark Results
 
+We benchmark **file localization** — *given a real GitHub issue, can mcp-brain rank the production files the accepted patch actually modified?*
+
+### Current learned localizer — held-out SWE-bench Lite
+
+The shipped LambdaMART model (`src/brain/localizer_model.json`) is trained on
+SWE-bench Full instances **outside** SWE-bench Lite and evaluated on the 300 Lite
+issues. The repositories overlap with training; leave-one-repository-out
+cross-validation gives a similar Hit@1 (~62–66%).
+
+| Metric | @1    | @3    | @5    | @10   |
+| ------ | ----- | ----- | ----- | ----- |
+| Hit    | 63.3% | 81.7% | 85.0% | 89.0% |
+
+**Calibrated reading plan.** The margin between the first and second candidate
+is a reliable confidence signal. Every localizer answer carries a `plan` fitted
+on the same held-out issues (`python -m benchmark.loclab calibrate`):
+
+| Tier   | Share of issues | `read_first` | Held-out hit rate |
+| ------ | --------------- | ------------ | ----------------- |
+| high   | 30%             | 1 file       | 86.7%             |
+| medium | 40%             | 4 files      | 85.8%             |
+| low    | 30%             | 10 files     | 78.9%             |
+
+A `low` plan tells the agent that localization is uncertain and it should search
+before editing.
+
+**Other languages — SWE-bench Multilingual.**
+
 <p align="center">
-  <img src="assets/benchmark-results.svg" width="950" alt="SWE-bench Full benchmark results: Hit@K, Recall@K, MAP@K, and comparison vs literature"/>
+  <img src="assets/languages.svg" width="950" alt="Held-out file localization by language: Hit@1 and Hit@10 for Python, Rust, Java, Go, JavaScript, TypeScript"/>
 </p>
 
-We benchmark **file localization** — *given a real GitHub issue, can mcp-brain rank the production files the accepted patch actually modified?*
+The same Python-trained model, run
+without retraining on the 151 Multilingual issues in supported languages (Go,
+Rust, Java, JavaScript, TypeScript; 25 repositories). Build output and vendored
+copies (`dist/`, `build/`, `vendor/`, `*.min.js`) are excluded from candidates.
+
+| Language   | n   | Hit@1 | Hit@3 | Hit@5 | Hit@10 |
+| ---------- | --- | ----- | ----- | ----- | ------ |
+| Rust       | 36  | 66.7% | 80.6% | 80.6% | 88.9%  |
+| Java       | 35  | 57.1% | 91.4% | 97.1% | 97.1%  |
+| Go         | 38  | 42.1% | 60.5% | 76.3% | 89.5%  |
+| JavaScript | 25  | 28.0% | 56.0% | 72.0% | 80.0%  |
+| TypeScript | 17  | 23.5% | 58.8% | 70.6% | 76.5%  |
+| All        | 151 | 47.0% | 71.5% | 80.8% | 88.1%  |
+
+The Python margin tiers do **not** transfer: their `high` tier held 64.9% here,
+not 86.7%. When the top file is not Python the plan therefore uses a single
+pooled tier fitted on these issues: `low`, read 8 files, 86.8% overall (JS 80%,
+TS 76%). Treat JS/TS predictions as a shortlist, not an answer.
+
+The v1.4.0 numbers below are kept for history (BM25 + graph, before the learned
+localizer).
+
+<p align="center">
+  <img src="assets/benchmark-results.svg" width="950" alt="SWE-bench Full benchmark results for v1.4.0: Hit@K, Recall@K, MAP@K, and comparison vs literature"/>
+</p>
 
 ### Dataset: SWE-bench Full
 
@@ -300,6 +444,11 @@ We benchmark **file localization** — *given a real GitHub issue, can mcp-brain
 * Ground truth = files modified in the accepted reference patch (test files **excluded** by default — strict production-file evaluation)
 
 ### Results — `mcp-brain` v1.4.0 (BM25 + graph + semantic)
+
+> These are the last fully reproduced numbers for the previous pipeline. The
+> personalized graph/role-aware pipeline must be rerun on the complete pinned
+> dataset before publishing replacement metrics; replay estimates are not
+> presented as benchmark results.
 
 | Metric     |    @1 |    @3 |    @5 |       @10 |
 | ---------- | ----: | ----: | ----: | --------: |
@@ -433,22 +582,65 @@ pip install -e ".[dev]"               # + dev tooling
 ### Register with Claude Code
 
 ```bash
-claude mcp add mcp-brain python /absolute/path/to/run.py
+claude mcp add mcp-brain -- mcp-brain-server
 ```
 
-On Windows PowerShell:
+The MCP server is client-neutral; Claude Code is only one registration example.
+
+### Optional fully local verifier
+
+`brain_predict_files` can return compact evidence cards or rerank them with a
+local OpenAI-compatible model by passing `verify_local=true`. The reference
+deployment is `llama-server` bound to `127.0.0.1`; Ollama, vLLM, and LocalAI use
+the same client contract.
+
+Local reranking is opt-in and experimental: the deterministic retriever remains
+the production default until a model clears the documented promotion gates.
 
 ```powershell
-claude mcp add mcp-brain python "C:\path\to\mcp-brain\run.py"
+$env:MCP_BRAIN_VERIFIER_URL = "http://127.0.0.1:8080/v1"
+$env:MCP_BRAIN_VERIFIER_MODEL = "your-local-code-model"
+mcp-brain doctor
 ```
 
-### Initialize your project
+Public endpoints are rejected by default. Invalid responses, timeouts, and low
+confidence overrides remain visible and fall back to the deterministic ranking.
+See [the on-prem deployment and promotion contract](benchmark/ON_PREM_VERIFIER.md).
+
+The installed entry point starts the server in the current repository, so the
+same command works on Windows, macOS, and Linux.
+
+### Initialize and verify your project
 
 ```bash
 mcp-brain init
+mcp-brain doctor
+mcp-brain calibrate   # optional, ~1 min: measure predictions on your own history
 ```
 
-That's it. Open Claude Code in your repo and the L1 context is automatically available via `brain_get_context`.
+`init` installs a portable post-commit hook without overwriting an unrelated
+hook. If one already exists, mcp-brain creates `post-commit.mcp-brain` and tells
+you to chain it. `doctor` checks the repository, hook, parsers, and optional
+semantic layer. `calibrate` replays recent commits and stores a reading plan
+measured on this repository (see [Self-Calibration](#-self-calibration)).
+
+### Optional Jev companion
+
+Jev can run beside mcp-brain as a separate MCP decision service:
+
+```bash
+claude mcp add jev -- jev mcp serve --model jev-1.13.0 \
+  --max-cost-usd-per-call 0.001
+```
+
+This separation is intentional: mcp-brain remains local-first and deterministic,
+while Jev can be called only at ambiguous decision boundaries. Jev request
+validation is offline and free, but model calls require a TypeSafe API key and
+may consume paid credits. See the
+[official Jev MCP guide](https://github.com/shaharia-lab/jev-cli/blob/main/docs/user-guide/mcp.md).
+
+That's it. Open Claude Code in your repo and the L1 context is automatically
+available via `brain_get_context`.
 
 ---
 
@@ -519,7 +711,7 @@ decisions:
 <details>
 <summary><b>Is this a RAG system or a vector DB?</b></summary>
 
-**No, and on purpose.** mcp-brain is a *structured awareness layer*, not a retrieval-over-embeddings layer. The core retrieval is BM25 + code graph expansion — fully deterministic, sub-100ms, no vector DB to maintain. The semantic reranker is an optional 30% blend on top, used only as a tiebreaker. This is why token cost stays predictable and infra is local-first.
+**No, and on purpose.** mcp-brain is a *structured awareness layer*, not a retrieval-over-embeddings layer. The core retrieval is multi-channel BM25, definitions, tracebacks, imports and Git history fused by a small tree model — fully deterministic, no vector DB to maintain. The semantic reranker is an optional 30% blend on top, used only as a tiebreaker. This is why token cost stays predictable and infra is local-first.
 
 </details>
 
@@ -561,7 +753,7 @@ Different layer of the stack. SWE-agent and similar tools are **autonomous coder
 <details>
 <summary><b>What's the catch?</b></summary>
 
-Honest answer: file prediction is heuristic. `Hit@1 = 24.5%` means 3 issues out of 4 still need Claude to validate the prediction before acting. mcp-brain *orients*, it doesn't *replace* exploration. That's also why it's free — it's a force multiplier, not an oracle.
+Honest answer: file prediction is statistical. `Hit@1 = 63.3%` on held-out issues means about 1 issue in 3 still needs the agent to look further. The calibrated `plan` says which case you are in: in the `low` tier (30% of issues) the right file is in the top 10 only 79% of the time. mcp-brain *orients*, it doesn't *replace* exploration. That's also why it's free — it's a force multiplier, not an oracle.
 
 </details>
 
@@ -574,10 +766,11 @@ I'm honest about what this is and isn't.
 | Strength                                      | Limitation                                                             |
 | --------------------------------------------- | ---------------------------------------------------------------------- |
 | ✅ Zero LLM cost for retrieval                 | ⚠️ Heuristic-based: edge cases with no symbol/path overlap can miss    |
-| ✅ Sub-100ms predictions                       | ⚠️ Requires good commit hygiene (semantic commit messages help)        |
+| ✅ Calibrated "how many files to read" plan    | ⚠️ Trained on Python; Go/Rust/Java usable, JS/TS weak (Hit@1 ~25%) |
 | ✅ Local-first, no cloud                       | ⚠️ No cross-machine sync out of the box (use git for `.brain/shared/`) |
-| ✅ Deterministic (replays produce same output) | ⚠️ Hit@1 = 24.5% → orients, doesn't replace exploration                |
+| ✅ Deterministic (replays produce same output) | ⚠️ Hit@1 = 63.3% → orients, doesn't replace exploration                |
 | ✅ Works on any size repo                      | ⚠️ Best on medium/large repos (small repos don't benefit much)         |
+| ✅ Self-calibrates on your own Git history     | ⚠️ Needs ≥30 usable commits; commit messages understate issue accuracy |
 
 **This is NOT**:
 
@@ -601,6 +794,10 @@ I'm honest about what this is and isn't.
 * [x] Observability dashboard
 * [x] SWE-bench Full benchmark (2294 instances)
 * [x] Multi-language code graph (Python, JS, TS, Go, Rust, Java, C#)
+* [x] Learned localizer (LambdaMART, JSON trees, pure Python)
+* [x] Calibrated reading plan + evidence cards
+* [x] Self-calibration on the repository's own history (`mcp-brain calibrate`)
+* [ ] Re-calibrate automatically from the post-commit hook
 * [ ] Cross-repo memory federation (opt-in)
 * [ ] Real-time conflict push (currently pull-based)
 * [ ] VS Code extension companion

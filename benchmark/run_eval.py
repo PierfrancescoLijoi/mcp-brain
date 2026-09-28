@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import subprocess
 import sys
@@ -62,6 +63,95 @@ def run_worker(item: Dict[str, Any], cache_root: Path, top_k: int, max_hops: int
         return [], str(exc)
 
 
+def run_repo_batch(
+    repo: str,
+    items: List[Dict[str, Any]],
+    cache_root: Path,
+    top_k: int,
+    max_hops: int,
+    use_semantic: bool,
+    timeout: int,
+) -> List[Dict[str, Any]]:
+    rdir = repo_dir(cache_root, repo)
+    if not rdir.exists():
+        error = f"repo cache not found: {rdir}. Run benchmark/prepare_repos.py first."
+        return [
+            {'instance_id': item['instance_id'], 'predictions': [], 'error': error}
+            for item in items
+        ]
+    cmd = [
+        sys.executable, '-m', 'benchmark.worker_predict_batch',
+        '--repo-dir', str(rdir),
+        '--top-k', str(top_k),
+        '--max-hops', str(max_hops),
+    ]
+    if use_semantic:
+        cmd.append('--use-semantic')
+    try:
+        completed = subprocess.run(
+            cmd,
+            input=json.dumps(items),
+            text=True,
+            encoding='utf-8',
+            capture_output=True,
+            check=True,
+            timeout=max(timeout, timeout * len(items)),
+        )
+        return json.loads(completed.stdout)
+    except subprocess.CalledProcessError as exc:
+        error = (exc.stderr or exc.stdout or str(exc))[-2000:]
+    except Exception as exc:
+        error = str(exc)
+    return [
+        {'instance_id': item['instance_id'], 'predictions': [], 'error': error}
+        for item in items
+    ]
+
+
+def run_batched(
+    instances: List[Dict[str, Any]],
+    cache_root: Path,
+    top_k: int,
+    max_hops: int,
+    use_semantic: bool,
+    timeout: int,
+    jobs: int,
+) -> List[Dict[str, Any]]:
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for item in instances:
+        groups.setdefault(item['repo'], []).append(item)
+
+    by_id: Dict[str, Dict[str, Any]] = {}
+    with ThreadPoolExecutor(max_workers=max(1, jobs)) as executor:
+        futures = {
+            executor.submit(
+                run_repo_batch,
+                repo,
+                items,
+                cache_root,
+                top_k,
+                max_hops,
+                use_semantic,
+                timeout,
+            ): (repo, len(items))
+            for repo, items in groups.items()
+        }
+        for future in as_completed(futures):
+            repo, count = futures[future]
+            print(f"completed {repo} ({count} instances)", flush=True)
+            for row in future.result():
+                by_id[row['instance_id']] = row
+
+    return [
+        by_id.get(item['instance_id'], {
+            'instance_id': item['instance_id'],
+            'predictions': [],
+            'error': 'batch worker returned no result',
+        })
+        for item in instances
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate mcp-brain file prediction on SWE-bench Lite")
     parser.add_argument("--dataset", default="benchmark/datasets/cache/swebench_lite.jsonl")
@@ -78,6 +168,14 @@ def main() -> None:
         help="Enable semantic reranking. Enabled by default; use --no-use-semantic to disable.",
     )
     parser.add_argument("--timeout", type=int, default=180)
+    parser.add_argument(
+        '--jobs', type=int, default=1,
+        help='Repository batches to run concurrently. Use 1 with one GPU.',
+    )
+    parser.add_argument(
+        '--legacy-instance-workers', action='store_true',
+        help='Start one Python process per instance (slow compatibility mode).',
+    )
     args = parser.parse_args()
 
     dataset = Path(args.dataset)
@@ -85,9 +183,30 @@ def main() -> None:
     started = time.time()
     instances = read_instances(dataset, limit=args.limit)
     results = []
-    for idx, item in enumerate(instances, start=1):
-        print(f"[{idx}/{len(instances)}] {item['instance_id']} {item['repo']}", flush=True)
-        predictions, error = run_worker(item, cache_root, args.top_k, args.max_hops, args.use_semantic, args.timeout)
+    if args.legacy_instance_workers:
+        worker_rows = []
+        for idx, item in enumerate(instances, start=1):
+            print(f"[{idx}/{len(instances)}] {item['instance_id']} {item['repo']}", flush=True)
+            predictions, error = run_worker(item, cache_root, args.top_k, args.max_hops, args.use_semantic, args.timeout)
+            worker_rows.append({
+                'instance_id': item['instance_id'],
+                'predictions': predictions,
+                'error': error,
+            })
+    else:
+        worker_rows = run_batched(
+            instances,
+            cache_root,
+            args.top_k,
+            args.max_hops,
+            args.use_semantic,
+            args.timeout,
+            args.jobs,
+        )
+
+    for item, worker_row in zip(instances, worker_rows):
+        predictions = worker_row['predictions']
+        error = worker_row['error']
         predicted_files = [p.get("file") for p in predictions if p.get("file")]
         gold_files = item.get("gold_files", [])
         metrics = {}
@@ -114,6 +233,10 @@ def main() -> None:
             "top_k": args.top_k,
             "max_hops": args.max_hops,
             "use_semantic": args.use_semantic,
+            "jobs": args.jobs,
+            "runner": (
+                'legacy-instance' if args.legacy_instance_workers else 'repo-batch'
+            ),
         },
         "summary": summarize(results),
         "results": results,

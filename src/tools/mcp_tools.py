@@ -66,22 +66,22 @@ def brain_save_session(project: str, branch: str, wip: str, next_steps: str) -> 
 @mcp.tool()
 def brain_install_hook(project_path: str) -> str:
     '''Installa git hook.'''
-    import shutil
-    from pathlib import Path
-    hook_src = Path(__file__).parent.parent.parent / 'hooks' / 'post-commit'
-    hook_dst = Path(project_path) / '.git' / 'hooks' / 'post-commit'
-    if not hook_src.exists():
-        return 'error: hook source not found'
-    if not (Path(project_path) / '.git').exists():
-        return 'error: not a git repository'
-    shutil.copy(hook_src, hook_dst)
-    hook_dst.chmod(0o755)
-    return f'hook installed at {hook_dst}'
+    from src.capture.hook_support import install_post_commit_hook
+    try:
+        result = install_post_commit_hook(project_path)
+    except ValueError as exc:
+        return f'error: {exc}'
+    if result.status == 'needs-chaining':
+        return (
+            f'existing hook preserved; helper installed at {result.path}. '
+            'Chain it from the existing post-commit hook.'
+        )
+    return f'hook {result.status} at {result.path}'
 
 
 def _start_ticket_impl(project, issue_id, author):
     from src.capture.github_reader import get_issue
-    from src.brain.file_predictor import predict_files_from_issue
+    from src.brain.file_predictor import predict_files_ranked
     from src.brain.conflict_detector import detect_conflicts, build_warnings
     from src.brain.claims_manager import claim_files
     import yaml
@@ -90,7 +90,7 @@ def _start_ticket_impl(project, issue_id, author):
     if 'error' in issue:
         return 'error loading issue: ' + str(issue.get('error'))
 
-    predicted = predict_files_from_issue(issue['title'], issue.get('body', ''))
+    predicted = [p['file'] for p in predict_files_ranked(issue['title'], issue.get('body', ''))]
     conflicts = detect_conflicts(predicted, exclude_author=author)
     warnings = build_warnings(conflicts)
     claim_files(issue_id, predicted, author, issue['title'])
@@ -182,7 +182,7 @@ def brain_verify_memory(memory_id: int) -> str:
 def brain_start_ticket_explained(project: str, issue_id: int, author: str) -> str:
     '''Come brain_start_ticket ma con spiegazione per ogni file predetto.'''
     from src.capture.github_reader import get_issue
-    from src.brain.file_predictor import predict_files_explained
+    from src.brain.file_predictor import predict_files_ranked
     from src.brain.conflict_detector import detect_conflicts, build_warnings
     from src.brain.claims_manager import claim_files
     import yaml
@@ -192,7 +192,7 @@ def brain_start_ticket_explained(project: str, issue_id: int, author: str) -> st
         if 'error' in issue:
             return 'error loading issue: ' + str(issue.get('error'))
 
-        predictions = predict_files_explained(issue['title'], issue.get('body', ''))
+        predictions = predict_files_ranked(issue['title'], issue.get('body', ''))
         files_only = [p['file'] for p in predictions]
 
         conflicts = detect_conflicts(files_only, exclude_author=author)
@@ -213,6 +213,7 @@ def brain_start_ticket_explained(project: str, issue_id: int, author: str) -> st
                 }
                 for p in predictions[:5]
             ],
+            'reading_plan': predictions[0].get('plan') if predictions else None,
             'conflicts': warnings if warnings else ['none'],
             'guidance': (
                 'Coordinate with active PRs before modifying shared files'

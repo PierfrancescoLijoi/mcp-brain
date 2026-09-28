@@ -427,3 +427,15 @@ def noise_penalty(file_path: str, matches: Dict[str, List[str]] | None = None) -
             reasons.append("soft penalty: test file, prefer source candidate")
 
     return factor, reasons
+
+
+def production_prior(file_path: str) -> Tuple[float, str | None]:
+    """Prefer implementation files in production-file localization results.
+
+    Test files remain candidates, but receive a final prior after every other
+    reranker. Applying this last is important: a semantic score must not erase
+    the product's explicit promise to prioritize likely modification targets.
+    """
+    if _looks_like_test_path(file_path):
+        return 0.40, "production prior: implementation file preferred over test"
+    return 1.0, None

@@ -42,7 +42,7 @@ def ensure_repo(cache_root: Path, repo: str, commits: Set[str]) -> Tuple[str, st
     url = f"https://github.com/{repo}.git"
     if not target.exists():
         target.parent.mkdir(parents=True, exist_ok=True)
-        run(["git", "clone", "--filter=blob:none", url, str(target)])
+        run(["git", "clone", "-c", "core.longpaths=true", "--filter=blob:none", url, str(target)])
     else:
         run(["git", "remote", "set-url", "origin", url], cwd=target)
         run(["git", "fetch", "--filter=blob:none", "origin"], cwd=target)
@@ -67,12 +67,14 @@ def main() -> None:
     dataset = Path(args.dataset)
     cache_root = Path(args.repo_cache)
     repo_commits = collect_repo_commits(dataset, limit=args.limit)
-    manifest = {}
+    manifest_path = cache_root / "manifest.json"
+    # Merge: several datasets share one repo cache.
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     for repo, commits in sorted(repo_commits.items()):
         name, path = ensure_repo(cache_root, repo, commits)
         manifest[name] = {"path": path, "commits": sorted(commits)}
     cache_root.mkdir(parents=True, exist_ok=True)
-    (cache_root / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"Prepared {len(manifest)} repos under {cache_root}")
 
 

@@ -1,7 +1,10 @@
 import pytest
 
 from src.brain.file_indexer import _finalize_index, save_index
-from src.brain.file_predictor import predict_files_explained
+from src.brain.file_predictor import (
+    predict_files_explained,
+    predict_files_with_impact,
+)
 
 
 @pytest.fixture
@@ -42,3 +45,51 @@ def test_breakdown_is_exposed_for_debugging(fake_index):
     res = predict_files_explained('login')
     assert 'breakdown' in res[0]
     assert 'bm25_terms' in res[0]['breakdown']
+
+
+def test_filename_boost_does_not_match_parent_directories(fake_index):
+    idx = fake_index({
+        'astropy/modeling/separable.py': {
+            'symbols': [],
+            'identifiers': ['shared'],
+        },
+        'astropy/io/connect.py': {
+            'symbols': [],
+            'identifiers': ['shared'],
+        },
+    })
+
+    assert predict_files_explained('astropy', index=idx) == []
+
+
+def test_production_prior_is_applied_after_semantic_reranking(
+    fake_index, monkeypatch
+):
+    idx = fake_index({
+        'pkg/parser.py': {'symbols': ['parse_config'], 'identifiers': []},
+        'pkg/tests/test_parser.py': {
+            'symbols': ['parse_config'],
+            'identifiers': [],
+        },
+    })
+
+    def semantic_prefers_test(_query, candidates, index=None):
+        for item in candidates:
+            item['score'] = 100.0 if '/tests/' in item['file'] else 50.0
+        return sorted(candidates, key=lambda item: item['score'], reverse=True)
+
+    monkeypatch.setattr(
+        'src.brain.semantic_reranker.rerank', semantic_prefers_test
+    )
+
+    result = predict_files_with_impact(
+        'parse_config',
+        index=idx,
+        graph=None,
+        max_hops=0,
+        use_semantic=True,
+    )
+
+    assert result[0]['file'] == 'pkg/parser.py'
+    assert result[1]['file'] == 'pkg/tests/test_parser.py'
+    assert 'production prior' in result[1]['why']

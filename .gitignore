@@ -252,3 +252,6 @@ benchmark/results/*_predictions.json
 benchmark/**/__pycache__/
 benchmark/**/*.pyc
 benchmark/.pytest_cache/
+
+# graphify output
+graphify-out/

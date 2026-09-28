@@ -23,7 +23,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
+from collections import Counter
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, Iterable, List
 
 from benchmark.adapters.patch_parser import extract_changed_files_from_patch
@@ -45,6 +46,19 @@ def _extract_patch(row: Dict[str, Any]) -> str:
     return str(_first_present(row, ("patch", "gold_patch", "reference_patch", "solution_patch"), "") or "")
 
 
+LANGUAGE_BY_SUFFIX = {
+    ".py": "python", ".pyi": "python", ".go": "go", ".rs": "rust", ".java": "java", ".cs": "csharp",
+    ".js": "javascript", ".jsx": "javascript", ".mjs": "javascript", ".cjs": "javascript",
+    ".ts": "typescript", ".tsx": "typescript",
+}
+
+
+def infer_language(files: List[str]) -> str:
+    """Majority language of the gold files; "other" when none is a supported source file."""
+    langs = Counter(LANGUAGE_BY_SUFFIX.get(PurePosixPath(f).suffix.lower(), "other") for f in files)
+    return langs.most_common(1)[0][0] if langs else "other"
+
+
 def convert_record(row: Dict[str, Any], dataset_name: str, include_tests: bool = False) -> Dict[str, Any]:
     patch = _extract_patch(row)
     gold_files = extract_changed_files_from_patch(patch, include_tests=include_tests)
@@ -52,7 +66,7 @@ def convert_record(row: Dict[str, Any], dataset_name: str, include_tests: bool =
         "instance_id": _first_present(row, ("instance_id", "id")),
         "dataset": dataset_name.rsplit("/", 1)[-1].lower(),
         "repo": row.get("repo"),
-        "language": "python",
+        "language": infer_language(gold_files),
         "base_commit": row.get("base_commit"),
         "problem_statement": row.get("problem_statement") or "",
         "gold_patch": patch,

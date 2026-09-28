@@ -1,0 +1,105 @@
+<svg viewBox="0 0 1100 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Calibrated reading plan: instead of trusting the top file (63% right), mcp-brain tells the agent how many files to read. High confidence: read 1 file, 87% right. Medium: read 4, 86%. Low: read 10, 79%, search first.">
+  <defs>
+    <linearGradient id="bgR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a33"/>
+    </linearGradient>
+    <linearGradient id="accentR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="hiR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="midR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="loR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <pattern id="gridR" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1100" height="560" fill="url(#bgR)"/>
+  <rect width="1100" height="560" fill="url(#gridR)"/>
+
+  <text x="60" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">It tells your agent how much to trust it</text>
+  <text x="60" y="84" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#94a3b8">Every prediction ships a reading plan: how many files to open, and the hit rate measured on issues the model never saw.</text>
+  <rect x="60" y="96" width="80" height="3" rx="2" fill="url(#accentR)"/>
+
+  <!-- LEFT: naive -->
+  <g transform="translate(60, 140)" font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">WITHOUT A PLAN</text>
+    <rect x="0" y="18" width="300" height="300" rx="14" fill="#0f172a" stroke="#334155"/>
+    <text x="24" y="58" font-size="15" fill="#cbd5e1">Agent trusts the #1 file</text>
+    <text x="24" y="80" font-size="13" fill="#64748b">for every issue</text>
+    <text x="24" y="170" font-size="72" font-weight="800" fill="#e2e8f0" letter-spacing="-2">63%</text>
+    <text x="24" y="198" font-size="14" fill="#94a3b8">right file</text>
+    <rect x="24" y="222" width="252" height="10" rx="5" fill="#1e293b"/>
+    <rect x="24" y="222" width="159" height="10" rx="5" fill="#475569"/>
+    <text x="24" y="266" font-size="13" fill="#f87171">1 in 3 edits start in the wrong file,</text>
+    <text x="24" y="286" font-size="13" fill="#f87171">and nothing tells the agent which.</text>
+  </g>
+
+  <!-- arrow -->
+  <g transform="translate(378, 300)">
+    <path d="M0 0 L40 0" stroke="url(#accentR)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M32 -8 L42 0 L32 8" fill="none" stroke="#06b6d4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- RIGHT: tiers -->
+  <g transform="translate(440, 140)" font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">WITH mcp-brain — CONFIDENCE FROM THE #1 vs #2 SCORE MARGIN</text>
+
+    <!-- high -->
+    <g transform="translate(0, 18)">
+      <rect x="0" y="0" width="600" height="92" rx="14" fill="#22c55e" fill-opacity="0.06" stroke="#22c55e" stroke-opacity="0.35"/>
+      <text x="22" y="34" font-size="13" font-weight="700" fill="#22c55e" letter-spacing="1">HIGH</text>
+      <text x="22" y="56" font-size="12" fill="#94a3b8">30% of issues</text>
+      <text x="22" y="76" font-size="12" fill="#94a3b8">clear winner</text>
+      <text x="150" y="42" font-size="22" font-weight="700" fill="#ffffff">Read 1 file</text>
+      <text x="150" y="68" font-size="13" fill="#cbd5e1">edit with confidence</text>
+      <rect x="360" y="36" width="160" height="12" rx="6" fill="#1e293b"/>
+      <rect x="360" y="36" width="139" height="12" rx="6" fill="url(#hiR)"/>
+      <text x="580" y="50" text-anchor="end" font-size="26" font-weight="800" fill="#ffffff">87%</text>
+      <text x="580" y="72" text-anchor="end" font-size="11" fill="#64748b">right</text>
+    </g>
+
+    <!-- medium -->
+    <g transform="translate(0, 122)">
+      <rect x="0" y="0" width="600" height="92" rx="14" fill="#06b6d4" fill-opacity="0.06" stroke="#06b6d4" stroke-opacity="0.35"/>
+      <text x="22" y="34" font-size="13" font-weight="700" fill="#06b6d4" letter-spacing="1">MEDIUM</text>
+      <text x="22" y="56" font-size="12" fill="#94a3b8">40% of issues</text>
+      <text x="22" y="76" font-size="12" fill="#94a3b8">close race</text>
+      <text x="150" y="42" font-size="22" font-weight="700" fill="#ffffff">Read 4 files</text>
+      <text x="150" y="68" font-size="13" fill="#cbd5e1">compare the evidence cards</text>
+      <rect x="360" y="36" width="160" height="12" rx="6" fill="#1e293b"/>
+      <rect x="360" y="36" width="137" height="12" rx="6" fill="url(#midR)"/>
+      <text x="580" y="50" text-anchor="end" font-size="26" font-weight="800" fill="#ffffff">86%</text>
+      <text x="580" y="72" text-anchor="end" font-size="11" fill="#64748b">in the 4</text>
+    </g>
+
+    <!-- low -->
+    <g transform="translate(0, 226)">
+      <rect x="0" y="0" width="600" height="92" rx="14" fill="#f59e0b" fill-opacity="0.06" stroke="#f59e0b" stroke-opacity="0.35"/>
+      <text x="22" y="34" font-size="13" font-weight="700" fill="#f59e0b" letter-spacing="1">LOW</text>
+      <text x="22" y="56" font-size="12" fill="#94a3b8">30% of issues</text>
+      <text x="22" y="76" font-size="12" fill="#94a3b8">no clear signal</text>
+      <text x="150" y="42" font-size="22" font-weight="700" fill="#ffffff">Search first</text>
+      <text x="150" y="68" font-size="13" fill="#cbd5e1">top 10 is a shortlist, not an answer</text>
+      <rect x="360" y="36" width="160" height="12" rx="6" fill="#1e293b"/>
+      <rect x="360" y="36" width="126" height="12" rx="6" fill="url(#loR)"/>
+      <text x="580" y="50" text-anchor="end" font-size="26" font-weight="800" fill="#ffffff">79%</text>
+      <text x="580" y="72" text-anchor="end" font-size="11" fill="#64748b">in the 10</text>
+    </g>
+  </g>
+
+  <text x="60" y="510" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#64748b">Held-out SWE-bench Lite (300 Python issues). Zero LLM calls, ~1.7 s on a Django-sized repo. Other languages: the plan is re-measured, see below.</text>
+  <rect x="0" y="557" width="1100" height="3" fill="url(#accentR)"/>
+</svg>

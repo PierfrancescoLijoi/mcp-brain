@@ -32,7 +32,9 @@ Modello di default: all-MiniLM-L6-v2 (~80 MB, veloce, CPU-friendly, 384-dim).
 from __future__ import annotations
 
 import logging
+import math
 import os
+import re
 import threading
 from typing import Any, Dict, List, Optional
 
@@ -140,18 +142,40 @@ def _get_model(name: Optional[str] = None):
 # ------------------------------------------------------------------
 # Rerank API
 # ------------------------------------------------------------------
-def _build_doc_text(file_path: str, file_data: Dict[str, Any]) -> str:
+def _build_doc_text(
+    file_path: str,
+    file_data: Dict[str, Any],
+    *,
+    df: Optional[Dict[str, int]] = None,
+    total_docs: Optional[int] = None,
+) -> str:
     """
-    Stringa "rappresentativa" di un file da embeddare.
-    Combina: basename, primi 20 simboli, primi 20 identifier più significativi.
+    Build a compact, deterministic role-aware representation for embedding.
+
+    Full path components communicate architectural role. Symbols are stable and
+    identifiers are ordered by inverse document frequency so domain concepts
+    win over ubiquitous language/framework vocabulary.
     """
-    name = file_path.rsplit('/', 1)[-1]
-    # Strippa estensione per non sprecare token su '.py' ecc.
-    if '.' in name:
-        name = name.rsplit('.', 1)[0]
-    syms = list(file_data.get('symbols', []))[:20]
-    idents = list(file_data.get('identifiers', []))[:20]
-    return ' '.join([name] + syms + idents)
+    path_without_ext = file_path.replace('\\', '/').rsplit('.', 1)[0]
+    path_terms = re.findall(r'[A-Za-z0-9]+', path_without_ext.lower())[-8:]
+    basename = path_without_ext.rsplit('/', 1)[-1].lower()
+    syms = sorted(set(file_data.get('symbols', [])))[:20]
+    idents = set(file_data.get('identifiers', []))
+    df = df or {}
+    total = max(int(total_docs or 0), 1)
+
+    def identifier_priority(term: str) -> tuple[float, str]:
+        frequency = max(int(df.get(term, total)), 1)
+        idf = math.log((total + 1.0) / frequency)
+        return (-idf, term)
+
+    ranked_idents = sorted(idents, key=identifier_priority)[:20]
+    parts = ['path', *path_terms, 'file', basename]
+    if syms:
+        parts.extend(['defines', *syms])
+    if ranked_idents:
+        parts.extend(['concepts', *ranked_idents])
+    return ' '.join(parts)
 
 
 def rerank(
@@ -194,9 +218,15 @@ def rerank(
 
     # Costruisci testi: [query, doc1, doc2, ...]
     texts = [query or '']
+    df = index.get('df', {})
+    total_docs = int(index.get('total', len(files_meta)))
     for c in candidates:
         data = files_meta.get(c['file'], {})
-        texts.append(_build_doc_text(c['file'], data))
+        texts.append(
+            _build_doc_text(
+                c['file'], data, df=df, total_docs=total_docs
+            )
+        )
 
     try:
         import numpy as np

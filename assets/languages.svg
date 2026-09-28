@@ -1,0 +1,109 @@
+<svg viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Held-out file localization by language. Hit@1 and Hit@10: Python 63/89, Rust 67/89, Java 57/97, Go 42/90, JavaScript 28/80, TypeScript 24/77.">
+  <defs>
+    <linearGradient id="bgL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#141a33"/>
+    </linearGradient>
+    <linearGradient id="accentL" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="top1L" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <pattern id="gridL" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1100" height="520" fill="url(#bgL)"/>
+  <rect width="1100" height="520" fill="url(#gridL)"/>
+
+  <text x="60" y="56" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">Six languages, measured, not assumed</text>
+  <text x="60" y="84" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#94a3b8">Same model, tree-sitter parsers, zero retraining. Python: SWE-bench Lite (300). Others: SWE-bench Multilingual (151, 25 repos).</text>
+  <rect x="60" y="96" width="80" height="3" rx="2" fill="url(#accentL)"/>
+
+  <!-- legend -->
+  <g transform="translate(700, 128)" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#cbd5e1">
+    <rect x="0" y="-10" width="14" height="10" rx="3" fill="url(#top1L)"/>
+    <text x="22" y="0">right file ranked #1</text>
+    <rect x="170" y="-10" width="14" height="10" rx="3" fill="#8b5cf6" fill-opacity="0.35" stroke="#8b5cf6" stroke-opacity="0.6"/>
+    <text x="192" y="0">in the top 10</text>
+  </g>
+
+  <!-- rows: bar area x 180..920 (740px = 100%) -->
+  <g transform="translate(60, 150)" font-family="ui-sans-serif, system-ui, sans-serif">
+    <g font-family="ui-monospace, monospace" font-size="10" fill="#475569">
+      <line x1="180" y1="0" x2="180" y2="300" stroke="#1e293b"/>
+      <line x1="365" y1="0" x2="365" y2="300" stroke="#1e293b" stroke-dasharray="2 4"/>
+      <line x1="550" y1="0" x2="550" y2="300" stroke="#1e293b" stroke-dasharray="2 4"/>
+      <line x1="735" y1="0" x2="735" y2="300" stroke="#1e293b" stroke-dasharray="2 4"/>
+      <line x1="920" y1="0" x2="920" y2="300" stroke="#1e293b" stroke-dasharray="2 4"/>
+      <text x="180" y="318" text-anchor="middle">0%</text>
+      <text x="365" y="318" text-anchor="middle">25%</text>
+      <text x="550" y="318" text-anchor="middle">50%</text>
+      <text x="735" y="318" text-anchor="middle">75%</text>
+      <text x="920" y="318" text-anchor="middle">100%</text>
+    </g>
+
+    <!-- Python 63.3 / 89.0 -->
+    <g transform="translate(0, 10)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">Python</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=300</text>
+      <rect x="180" y="6" width="659" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="468" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="640" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">63%</text>
+      <text x="850" y="26" font-size="12" fill="#c4b5fd">89%</text>
+    </g>
+    <!-- Rust 66.7 / 88.9 -->
+    <g transform="translate(0, 58)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">Rust</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=36</text>
+      <rect x="180" y="6" width="658" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="494" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="666" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">67%</text>
+      <text x="849" y="26" font-size="12" fill="#c4b5fd">89%</text>
+    </g>
+    <!-- Java 57.1 / 97.1 -->
+    <g transform="translate(0, 106)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">Java</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=35</text>
+      <rect x="180" y="6" width="719" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="423" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="595" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">57%</text>
+      <text x="910" y="26" font-size="12" fill="#c4b5fd">97%</text>
+    </g>
+    <!-- Go 42.1 / 89.5 -->
+    <g transform="translate(0, 154)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">Go</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=38</text>
+      <rect x="180" y="6" width="662" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="312" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="484" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">42%</text>
+      <text x="853" y="26" font-size="12" fill="#c4b5fd">90%</text>
+    </g>
+    <!-- JavaScript 28.0 / 80.0 -->
+    <g transform="translate(0, 202)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">JavaScript</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=25</text>
+      <rect x="180" y="6" width="592" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="207" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="379" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">28%</text>
+      <text x="783" y="26" font-size="12" fill="#c4b5fd">80%</text>
+    </g>
+    <!-- TypeScript 23.5 / 76.5 -->
+    <g transform="translate(0, 250)">
+      <text x="0" y="22" font-size="15" font-weight="600" fill="#ffffff">TypeScript</text>
+      <text x="0" y="38" font-size="11" fill="#64748b">n=17</text>
+      <rect x="180" y="6" width="566" height="30" rx="6" fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-opacity="0.45"/>
+      <rect x="180" y="6" width="174" height="30" rx="6" fill="url(#top1L)"/>
+      <text x="346" y="26" text-anchor="end" font-size="13" font-weight="700" fill="#0b1020">24%</text>
+      <text x="757" y="26" font-size="12" fill="#c4b5fd">77%</text>
+    </g>
+  </g>
+
+  <text x="60" y="500" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" fill="#64748b">JS/TS: the right file is almost always in the pool, but monorepo wrappers and .d.ts files outrank it. The plan says so: "shortlist, search first".</text>
+  <rect x="0" y="517" width="1100" height="3" fill="url(#accentL)"/>
+</svg>

@@ -8,7 +8,10 @@ import yaml
 import pytest
 
 from src.brain.file_indexer import _finalize_index, save_index
+from src.brain.llm_verifier import VerificationOutcome
+from src.tools import predict_files_tool
 from src.tools.predict_files_tool import (
+    _format_predictions,
     predict_files_impl,
     register_predict_files_tool,
 )
@@ -29,6 +32,67 @@ def fake_index(tmp_brain):
 # predict_files_impl (pure)
 # ======================================================================
 class TestPredictFilesImpl:
+    def test_optional_local_verifier_reranks_and_reports_metadata(self, monkeypatch):
+        calls = {}
+        predictions = [
+            {'file': 'a.py', 'confidence': 'low', 'score': 2, 'source': 'localizer',
+             'hops': 0, 'why': 'a', 'evidence': 'card a'},
+            {'file': 'b.py', 'confidence': 'low', 'score': 1, 'source': 'localizer',
+             'hops': 0, 'why': 'b', 'evidence': 'card b'},
+        ]
+
+        def fake_predict(*args, **kwargs):
+            calls['evidence'] = kwargs['evidence']
+            return predictions
+
+        def fake_verify(issue, items):
+            calls['issue'] = issue
+            return list(reversed(items)), VerificationOutcome(
+                'verified', 'local', 'model', 0.9, True, 4, reason='clear evidence'
+            )
+
+        monkeypatch.setattr(predict_files_tool, 'predict_files_ranked', fake_predict)
+        monkeypatch.setattr(predict_files_tool, 'verify_predictions', fake_verify)
+
+        data = yaml.safe_load(predict_files_impl(
+            'parser crash', body='stack trace', evidence=False, verify_local=True
+        ))
+
+        assert calls == {'evidence': True, 'issue': 'parser crash\nstack trace'}
+        assert data['predictions'][0]['file'] == 'b.py'
+        assert data['verification']['status'] == 'verified'
+
+    def test_reading_plan_is_emitted_first_with_advice(self):
+        base = {'score': 1.0, 'source': 'localizer', 'hops': 0, 'why': 'x', 'confidence': 'low'}
+        plan = {'confidence': 'low', 'read_first': 10, 'expected_hit': 0.789, 'margin': 0.1}
+        out = _format_predictions([{**base, 'file': 'a.py', 'plan': plan}, {**base, 'file': 'b.py'}])
+        data = yaml.safe_load(out)
+        assert list(data)[0] == 'plan'
+        assert data['plan']['read_first'] == 10
+        assert data['plan']['advice'].startswith('Low confidence')
+        assert 'plan' not in data['predictions'][0]
+
+    def test_reading_plan_dropped_when_top_file_was_reordered(self):
+        base = {'score': 1.0, 'source': 'localizer', 'hops': 0, 'why': 'x', 'confidence': 'high'}
+        plan = {'confidence': 'high', 'read_first': 1, 'expected_hit': 0.867, 'margin': 3.0}
+        out = _format_predictions([{**base, 'file': 'b.py'}, {**base, 'file': 'a.py', 'plan': plan}])
+        assert 'plan' not in yaml.safe_load(out)
+
+    def test_multiline_evidence_uses_literal_block_and_round_trips(self):
+        evidence = '## [1] src/auth.py\noutline: login\ncode:\n  def login(): ...'
+        out = _format_predictions([{
+            'file': 'src/auth.py',
+            'confidence': 'high',
+            'score': 1.0,
+            'source': 'localizer',
+            'hops': 0,
+            'why': 'matched login',
+            'evidence': evidence,
+        }])
+
+        assert 'evidence: |' in out
+        assert yaml.safe_load(out)['predictions'][0]['evidence'] == evidence
+
     def test_returns_yaml_with_predictions(self, fake_index):
         fake_index({
             'src/auth.py': {'symbols': ['login'], 'identifiers': []},

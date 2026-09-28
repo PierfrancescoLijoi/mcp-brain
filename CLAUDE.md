@@ -1,79 +1,74 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# mcp-brain contributor guide
 
 ## What this project is
 
-`mcp-brain` is a persistent memory MCP server for Claude Code. It stores project context, architectural decisions, and session snapshots in a local SQLite database (`~/.mcp-brain/brain.db`), then serves them back to Claude at the start of each session — eliminating context rebuilding overhead.
+`mcp-brain` is a local-first, repository-aware MCP server for coding agents. It
+combines persistent memories, session snapshots, Git history, a code graph,
+file prediction, conflict checks, patch-safety checks, and an optional semantic
+reranker. Repository state stays under `.brain/`; credentials belong in the
+environment and must never be committed.
 
 ## Commands
 
-Install in editable mode:
 ```bash
-pip install -e .
+# Editable development install with test dependencies
+pip install -e ".[dev]"
+
+# Start the MCP server
+mcp-brain-server
+
+# Configure the current Git repository and its post-commit hook
+mcp-brain init
+
+# Verify the hook and optional parser/semantic capabilities
+mcp-brain doctor
+
+# Measure file prediction on this repository history (writes .brain/local/calibration.json)
+mcp-brain calibrate
+
+# Run the complete test suite
+python -m pytest -q
 ```
 
-Run the server directly (dev):
-```bash
-python run.py
-```
-
-Run via installed entry point:
-```bash
-mcp-brain
-```
-
-There is no test suite or linter configured yet.
+`python run.py` remains a development shim. The console scripts are deliberately
+separate: `mcp-brain` is the setup/diagnostic CLI and `mcp-brain-server` starts
+the MCP server.
 
 ## Architecture
 
-### Data model — three memory levels
+The main request path is:
 
-Every memory has a computed `score` (0.0–1.0) that determines its level:
-
-| Level | Score threshold | When loaded |
-|-------|----------------|-------------|
-| L1    | ≥ 0.7          | Every session (`brain_get_context`) — ~70 tokens |
-| L2    | ≥ 0.4          | On-demand (`brain_get_decisions`) — ~200–400 tokens |
-| L3    | < 0.4          | Archive only, never served |
-
-Scoring weights (`src/brain/scorer.py`): recency 35%, frequency 30%, file impact 20%, explicit flag 15%. Recency decays linearly to 0 over 30 days.
-
-### Request flow
-
-```
-Claude calls MCP tool
-  → src/tools/mcp_tools.py  (FastMCP tool definitions)
-  → src/brain/retriever.py  (business logic: scoring, level assignment)
-  → src/brain/compressor.py (builds YAML context strings)
-  → src/storage/db.py       (SQLite reads/writes to ~/.mcp-brain/brain.db)
+```text
+MCP client
+  -> src/tools/            FastMCP tool definitions and input/output shaping
+  -> src/brain/            retrieval, scoring, graph, prediction, and guards
+  -> src/storage/          SQLite access and repository-local paths
+  -> .brain/local/         generated private state (gitignored)
+  -> .brain/shared/        optional shareable team signals
 ```
 
-### MCP tools (exposed to Claude)
+Important generated files include `.brain/local/memory.db`,
+`.brain/local/file_index.json`, and `.brain/local/code_graph.json`. Do not put
+generated state back in a global home-directory database.
 
-| Tool | Purpose |
-|------|---------|
-| `brain_init` | Register a project (call once per repo) |
-| `brain_get_context` | Load L1 context — call at session start |
-| `brain_get_decisions` | Load L2 decisions — call when historical context needed |
-| `brain_remember` | Store a memory; level auto-assigned by scorer |
-| `brain_save_session` | Save end-of-session snapshot (branch, wip, next steps) |
+`src/capture/git_hook.py` is active code: the installed post-commit hook invokes
+it through the CLI. `src/capture/hook_support.py` owns safe hook installation,
+worktree/custom-hooks-path resolution, and preservation of existing user hooks.
 
-Memory categories: `decision`, `avoid`, `pattern`, `failed`.
+The semantic reranker is optional. Core installation must continue to work
+without `sentence-transformers` and NumPy; install `.[semantic]` when that
+capability is wanted. Language parsers are likewise optional via `.[parsers]`.
 
-### Storage
+## Development rules
 
-- Database location: `~/.mcp-brain/brain.db` (created automatically on first `init_db()` call)
-- Three tables: `projects`, `memories`, `sessions`
-- `src/capture/` — stubs for future git-hook and snapshot capture features (currently empty)
-
-### Entry points
-
-- `run.py` (repo root) — adds repo root to `sys.path`, used for running without install
-- `src/run.py` — similar shim
-- `src/server.py:main` — registered as the `mcp-brain` console script in `pyproject.toml`
-
-All three call `init_db()` then `mcp.run()`.
+- Add or update tests for behavior changes and run the focused tests first.
+- Run the full suite before handing off a change.
+- Preserve existing Git hooks; when a companion hook is generated, report the
+  required chaining step instead of overwriting user configuration.
+- Resolve a supplied repository path to the Git worktree root before writing
+  `.brain`, `.gitignore`, or `CLAUDE.md`.
+- Keep the default installation local-first and avoid mandatory paid services.
+- Never commit credentials, `.env`, or `.brain/local/`.
 
 ## Workflow ticket
 

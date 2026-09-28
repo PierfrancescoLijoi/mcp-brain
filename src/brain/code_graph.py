@@ -304,12 +304,20 @@ def build_graph(repo_root: Path = None) -> Dict:
 
     elapsed_ms = int((time.perf_counter() - started) * 1000)
 
+    try:
+        from src.brain.cochange_graph import build_cochange_graph
+        cochange = build_cochange_graph(root)
+    except Exception:
+        cochange = {}
+
     return {
         'files': files_data,
         'symbol_index': symbol_index,
+        'cochange': cochange,
         'stats': {
             'total_files': len(files_data),
             'total_symbols': sum(len(v) for v in symbol_index.values()),
+            'cochange_files': len(cochange),
             'build_time_ms': elapsed_ms,
             'built_at': datetime.now(timezone.utc).isoformat(),
         },
