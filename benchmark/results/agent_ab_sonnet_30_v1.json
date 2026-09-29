@@ -1,0 +1,1003 @@
+{
+ "model": "sonnet",
+ "seed": 0,
+ "summary": {
+  "baseline": {
+   "n": 30,
+   "hit@1": 0.9667,
+   "hit@3": 1.0,
+   "cost_usd": 0.0626,
+   "turns": 2.3333,
+   "input_tokens": 41244.7,
+   "output_tokens": 505.5333,
+   "wall_s": 12.2633
+  },
+  "mcp-brain": {
+   "n": 30,
+   "hit@1": 0.9667,
+   "hit@3": 1.0,
+   "cost_usd": 0.0673,
+   "turns": 3.1667,
+   "input_tokens": 56443.9667,
+   "output_tokens": 561.9667,
+   "wall_s": 62.9533
+  }
+ },
+ "results": [
+  {
+   "instance_id": "scikit-learn__scikit-learn-14087",
+   "gold": [
+    "sklearn/linear_model/logistic.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sklearn/linear_model/logistic.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0639452,
+    "turns": 2,
+    "input_tokens": 38029,
+    "output_tokens": 325,
+    "wall_s": 10.9
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sklearn/linear_model/logistic.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0641648,
+    "turns": 2,
+    "input_tokens": 37928,
+    "output_tokens": 360,
+    "wall_s": 12.3
+   }
+  },
+  {
+   "instance_id": "django__django-11630",
+   "gold": [
+    "django/core/checks/model_checks.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/core/checks/model_checks.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0691244,
+    "turns": 3,
+    "input_tokens": 55436,
+    "output_tokens": 472,
+    "wall_s": 19.3
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/core/checks/model_checks.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06640900000000001,
+    "turns": 3,
+    "input_tokens": 54971,
+    "output_tokens": 456,
+    "wall_s": 11.5
+   }
+  },
+  {
+   "instance_id": "matplotlib__matplotlib-24265",
+   "gold": [
+    "lib/matplotlib/style/core.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "lib/matplotlib/style/core.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06956860000000001,
+    "turns": 3,
+    "input_tokens": 56285,
+    "output_tokens": 466,
+    "wall_s": 13.8
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "lib/matplotlib/style/core.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0633234,
+    "turns": 2,
+    "input_tokens": 37241,
+    "output_tokens": 358,
+    "wall_s": 10.8
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-17139",
+   "gold": [
+    "sympy/simplify/fu.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/simplify/fu.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.063207,
+    "turns": 2,
+    "input_tokens": 37665,
+    "output_tokens": 328,
+    "wall_s": 9.9
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/simplify/fu.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.07564080000000001,
+    "turns": 4,
+    "input_tokens": 76916,
+    "output_tokens": 528,
+    "wall_s": 16.1
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-14817",
+   "gold": [
+    "sympy/printing/pretty/pretty.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/printing/pretty/pretty.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.057061600000000004,
+    "turns": 2,
+    "input_tokens": 37676,
+    "output_tokens": 379,
+    "wall_s": 10.7
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/printing/pretty/pretty.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06222420000000001,
+    "turns": 3,
+    "input_tokens": 56839,
+    "output_tokens": 444,
+    "wall_s": 12.6
+   }
+  },
+  {
+   "instance_id": "sphinx-doc__sphinx-10325",
+   "gold": [
+    "sphinx/ext/autodoc/__init__.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0582244,
+    "turns": 3,
+    "input_tokens": 37381,
+    "output_tokens": 516,
+    "wall_s": 10.3
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0558892,
+    "turns": 2,
+    "input_tokens": 37040,
+    "output_tokens": 371,
+    "wall_s": 9.0
+   }
+  },
+  {
+   "instance_id": "psf__requests-863",
+   "gold": [
+    "requests/models.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "requests/models.py",
+     "requests/hooks.py",
+     "requests/sessions.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0701778,
+    "turns": 3,
+    "input_tokens": 55709,
+    "output_tokens": 543,
+    "wall_s": 11.5
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "requests/models.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06128240000000001,
+    "turns": 2,
+    "input_tokens": 36484,
+    "output_tokens": 337,
+    "wall_s": 10.4
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-14308",
+   "gold": [
+    "sympy/printing/pretty/pretty.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/printing/pretty/pretty.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06426660000000001,
+    "turns": 3,
+    "input_tokens": 55860,
+    "output_tokens": 615,
+    "wall_s": 13.7
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/printing/pretty/pretty.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0522804,
+    "turns": 2,
+    "input_tokens": 36190,
+    "output_tokens": 265,
+    "wall_s": 8.7
+   }
+  },
+  {
+   "instance_id": "pytest-dev__pytest-9359",
+   "gold": [
+    "src/_pytest/_code/source.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "src/_pytest/_code/source.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.073146,
+    "turns": 3,
+    "input_tokens": 58418,
+    "output_tokens": 509,
+    "wall_s": 11.4
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "src/_pytest/_code/source.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0690096,
+    "turns": 2,
+    "input_tokens": 39113,
+    "output_tokens": 429,
+    "wall_s": 9.8
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-24213",
+   "gold": [
+    "sympy/physics/units/unitsystem.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/physics/units/unitsystem.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0536124,
+    "turns": 2,
+    "input_tokens": 36670,
+    "output_tokens": 305,
+    "wall_s": 10.5
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/physics/units/unitsystem.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.060500399999999996,
+    "turns": 3,
+    "input_tokens": 55792,
+    "output_tokens": 478,
+    "wall_s": 11.1
+   }
+  },
+  {
+   "instance_id": "sphinx-doc__sphinx-8435",
+   "gold": [
+    "sphinx/ext/autodoc/__init__.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0722016,
+    "turns": 3,
+    "input_tokens": 56677,
+    "output_tokens": 639,
+    "wall_s": 14.8
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06997060000000001,
+    "turns": 3,
+    "input_tokens": 55958,
+    "output_tokens": 542,
+    "wall_s": 13.3
+   }
+  },
+  {
+   "instance_id": "django__django-16408",
+   "gold": [
+    "django/db/models/sql/compiler.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/db/models/sql/compiler.py",
+     "django/db/models/query.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0665168,
+    "turns": 2,
+    "input_tokens": 36924,
+    "output_tokens": 765,
+    "wall_s": 17.3
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/db/models/sql/compiler.py",
+     "django/db/models/query.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0705914,
+    "turns": 3,
+    "input_tokens": 55590,
+    "output_tokens": 768,
+    "wall_s": 314.7
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-16792",
+   "gold": [
+    "sympy/utilities/codegen.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/utilities/codegen.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.10645,
+    "turns": 4,
+    "input_tokens": 78824,
+    "output_tokens": 853,
+    "wall_s": 16.6
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/utilities/codegen.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0727336,
+    "turns": 3,
+    "input_tokens": 39154,
+    "output_tokens": 595,
+    "wall_s": 14.8
+   }
+  },
+  {
+   "instance_id": "django__django-14382",
+   "gold": [
+    "django/core/management/templates.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/core/management/templates.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0595498,
+    "turns": 3,
+    "input_tokens": 55113,
+    "output_tokens": 471,
+    "wall_s": 311.9
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/core/management/templates.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0462494,
+    "turns": 1,
+    "input_tokens": 18060,
+    "output_tokens": 83,
+    "wall_s": 5.5
+   }
+  },
+  {
+   "instance_id": "mwaskom__seaborn-3010",
+   "gold": [
+    "seaborn/_stats/regression.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "seaborn/_stats/regression.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0666718,
+    "turns": 2,
+    "input_tokens": 39285,
+    "output_tokens": 332,
+    "wall_s": 9.7
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "seaborn/_stats/regression.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0726594,
+    "turns": 3,
+    "input_tokens": 59469,
+    "output_tokens": 415,
+    "wall_s": 12.0
+   }
+  },
+  {
+   "instance_id": "django__django-13158",
+   "gold": [
+    "django/db/models/sql/query.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/db/models/sql/query.py",
+     "django/db/models/query.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0707512,
+    "turns": 4,
+    "input_tokens": 57330,
+    "output_tokens": 840,
+    "wall_s": 17.4
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/db/models/sql/query.py",
+     "django/db/models/query.py",
+     "django/db/models/sql/compiler.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0833888,
+    "turns": 6,
+    "input_tokens": 96225,
+    "output_tokens": 1115,
+    "wall_s": 322.1
+   }
+  },
+  {
+   "instance_id": "matplotlib__matplotlib-23913",
+   "gold": [
+    "lib/matplotlib/legend.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "lib/matplotlib/legend.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0623548,
+    "turns": 2,
+    "input_tokens": 36399,
+    "output_tokens": 498,
+    "wall_s": 10.6
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "lib/matplotlib/legend.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.060938400000000004,
+    "turns": 2,
+    "input_tokens": 36254,
+    "output_tokens": 387,
+    "wall_s": 11.2
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-19007",
+   "gold": [
+    "sympy/matrices/expressions/blockmatrix.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/matrices/expressions/blockmatrix.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.054913000000000003,
+    "turns": 2,
+    "input_tokens": 36458,
+    "output_tokens": 445,
+    "wall_s": 11.5
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/matrices/expressions/blockmatrix.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.059651,
+    "turns": 3,
+    "input_tokens": 55139,
+    "output_tokens": 454,
+    "wall_s": 13.3
+   }
+  },
+  {
+   "instance_id": "django__django-14608",
+   "gold": [
+    "django/forms/formsets.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/forms/formsets.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0535006,
+    "turns": 2,
+    "input_tokens": 36399,
+    "output_tokens": 319,
+    "wall_s": 10.3
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/forms/formsets.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0571058,
+    "turns": 3,
+    "input_tokens": 36830,
+    "output_tokens": 555,
+    "wall_s": 10.4
+   }
+  },
+  {
+   "instance_id": "pydata__xarray-4248",
+   "gold": [
+    "xarray/core/formatting.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "xarray/core/formatting.py",
+     "xarray/core/formatting_html.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06821279999999999,
+    "turns": 3,
+    "input_tokens": 55583,
+    "output_tokens": 509,
+    "wall_s": 12.3
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "xarray/core/formatting.py",
+     "xarray/core/formatting_html.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0615728,
+    "turns": 2,
+    "input_tokens": 36675,
+    "output_tokens": 336,
+    "wall_s": 9.9
+   }
+  },
+  {
+   "instance_id": "django__django-13230",
+   "gold": [
+    "django/contrib/syndication/views.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/contrib/syndication/views.py",
+     "django/utils/feedgenerator.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.054965799999999995,
+    "turns": 2,
+    "input_tokens": 36481,
+    "output_tokens": 397,
+    "wall_s": 9.5
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/contrib/syndication/views.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0637756,
+    "turns": 4,
+    "input_tokens": 73303,
+    "output_tokens": 526,
+    "wall_s": 316.1
+   }
+  },
+  {
+   "instance_id": "django__django-12497",
+   "gold": [
+    "django/db/models/fields/related.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/db/models/fields/related.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0528272,
+    "turns": 2,
+    "input_tokens": 36470,
+    "output_tokens": 270,
+    "wall_s": 11.9
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/db/models/fields/related.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0561744,
+    "turns": 3,
+    "input_tokens": 36964,
+    "output_tokens": 455,
+    "wall_s": 9.8
+   }
+  },
+  {
+   "instance_id": "pytest-dev__pytest-5103",
+   "gold": [
+    "src/_pytest/assertion/rewrite.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "src/_pytest/assertion/rewrite.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0693894,
+    "turns": 3,
+    "input_tokens": 56707,
+    "output_tokens": 486,
+    "wall_s": 13.2
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "src/_pytest/assertion/rewrite.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0678614,
+    "turns": 3,
+    "input_tokens": 56207,
+    "output_tokens": 404,
+    "wall_s": 14.6
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-13915",
+   "gold": [
+    "sympy/core/mul.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/core/mul.py",
+     "sympy/core/add.py",
+     "sympy/core/power.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.082205,
+    "turns": 3,
+    "input_tokens": 56998,
+    "output_tokens": 2228,
+    "wall_s": 30.4
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/core/mul.py",
+     "sympy/core/power.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0640782,
+    "turns": 3,
+    "input_tokens": 55253,
+    "output_tokens": 918,
+    "wall_s": 317.2
+   }
+  },
+  {
+   "instance_id": "sympy__sympy-21614",
+   "gold": [
+    "sympy/core/function.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sympy/core/function.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.05606359999999999,
+    "turns": 3,
+    "input_tokens": 36400,
+    "output_tokens": 554,
+    "wall_s": 12.2
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sympy/core/function.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0610492,
+    "turns": 4,
+    "input_tokens": 55041,
+    "output_tokens": 603,
+    "wall_s": 11.2
+   }
+  },
+  {
+   "instance_id": "django__django-13265",
+   "gold": [
+    "django/db/migrations/autodetector.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/db/migrations/autodetector.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0754186,
+    "turns": 4,
+    "input_tokens": 59566,
+    "output_tokens": 776,
+    "wall_s": 11.9
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/db/migrations/autodetector.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.055567200000000004,
+    "turns": 2,
+    "input_tokens": 37553,
+    "output_tokens": 335,
+    "wall_s": 9.4
+   }
+  },
+  {
+   "instance_id": "pytest-dev__pytest-8365",
+   "gold": [
+    "src/_pytest/tmpdir.py"
+   ],
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "src/_pytest/tmpdir.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.05472520000000001,
+    "turns": 2,
+    "input_tokens": 37219,
+    "output_tokens": 297,
+    "wall_s": 9.9
+   },
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "src/_pytest/tmpdir.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.0607668,
+    "turns": 3,
+    "input_tokens": 56361,
+    "output_tokens": 426,
+    "wall_s": 10.4
+   }
+  },
+  {
+   "instance_id": "sphinx-doc__sphinx-8801",
+   "gold": [
+    "sphinx/ext/autodoc/importer.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py",
+     "sphinx/ext/autodoc/importer.py"
+    ],
+    "hit@1": false,
+    "hit@3": true,
+    "cost_usd": 0.0858292,
+    "turns": 4,
+    "input_tokens": 79080,
+    "output_tokens": 1176,
+    "wall_s": 16.7
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "sphinx/ext/autodoc/__init__.py",
+     "sphinx/ext/autodoc/importer.py"
+    ],
+    "hit@1": false,
+    "hit@3": true,
+    "cost_usd": 0.08095240000000001,
+    "turns": 3,
+    "input_tokens": 59622,
+    "output_tokens": 1204,
+    "wall_s": 15.3
+   }
+  },
+  {
+   "instance_id": "pylint-dev__pylint-5859",
+   "gold": [
+    "pylint/checkers/misc.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "pylint/checkers/misc.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.06760479999999999,
+    "turns": 3,
+    "input_tokens": 55759,
+    "output_tokens": 431,
+    "wall_s": 10.4
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "pylint/checkers/misc.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.061079999999999995,
+    "turns": 2,
+    "input_tokens": 36677,
+    "output_tokens": 311,
+    "wall_s": 8.9
+   }
+  },
+  {
+   "instance_id": "django__django-16041",
+   "gold": [
+    "django/forms/formsets.py"
+   ],
+   "mcp-brain": {
+    "arm": "mcp-brain",
+    "answer": [
+     "django/forms/formsets.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.060577000000000006,
+    "turns": 3,
+    "input_tokens": 55968,
+    "output_tokens": 443,
+    "wall_s": 14.1
+   },
+   "baseline": {
+    "arm": "baseline",
+    "answer": [
+     "django/forms/formsets.py"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "cost_usd": 0.055466600000000005,
+    "turns": 2,
+    "input_tokens": 37042,
+    "output_tokens": 380,
+    "wall_s": 9.5
+   }
+  }
+ ]
+}

@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="#-benchmark-results"><img src="https://img.shields.io/badge/SWE--bench%20Lite-Hit%401%3A%2063.3%25-success?style=for-the-badge" alt="SWE-bench Lite Hit@1"/></a>
-  <a href="#-token-efficiency"><img src="https://img.shields.io/badge/token%20saving-65%25%20avg-blue?style=for-the-badge" alt="Token saving"/></a>
+  <a href="#-self-calibration"><img src="https://img.shields.io/badge/self--calibrated-on%20your%20repo-blue?style=for-the-badge" alt="Self-calibrated"/></a>
   <a href="#-quick-start"><img src="https://img.shields.io/badge/zero%20LLM%20cost-✓-purple?style=for-the-badge" alt="Zero LLM cost"/></a>
   <a href="#-quick-start"><img src="https://img.shields.io/badge/local--first-✓-22c55e?style=for-the-badge" alt="Local-first"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License"/></a>
@@ -28,7 +28,7 @@
 
 **mcp-brain** is a Model Context Protocol (MCP) server that gives coding agents persistent, structured awareness of a project — without burning tokens on context rebuilding or requiring a cloud service.
 
-|  🧠 | **Compressed awareness** in ~100 tokens instead of ~2000                       |
+|  🧠 | **Compressed awareness**: project context in a ~100-token YAML block           |
 | :-: | :----------------------------------------------------------------------------- |
 |  🎯 | **63.3% Hit@1 / 89.0% Hit@10** on held-out SWE-bench Lite — zero LLM cost     |
 |  📏 | **Calibrated reading plan**: "read 1 file, 87% right" or "uncertain, search"   |
@@ -54,7 +54,7 @@
 * [Decision Lifecycle](#-decision-lifecycle)
 * [Architecture](#️-architecture)
 * [Benchmark Results](#-benchmark-results)
-* [Token Efficiency](#-token-efficiency)
+* [Agent A/B](#-agent-ab-measured-not-estimated)
 * [Quick Start](#-quick-start)
 * [MCP Tools](#-mcp-tools)
 * [Use Cases](#-use-cases)
@@ -79,9 +79,8 @@ Without persistent awareness, Claude Code operates **blindly** at the start of e
 | ❌ Re-explores the repo every session      | ✅ Compressed context in ~100 tokens   |
 | ❌ No visibility into teammates' WIP       | ✅ Soft claims + conflict detection    |
 | ❌ Acts on outdated decisions              | ✅ Decision lifecycle (active → stale) |
-| ❌ Burns 2000–5000 tokens just to "orient" | ✅ One YAML block, ready to act        |
 
-**Result without mcp-brain:** wrong file exploration → outdated suggestions → merge conflicts → massive token waste.
+**Result without mcp-brain:** wrong file exploration → outdated suggestions → merge conflicts.
 
 ---
 
@@ -91,10 +90,10 @@ Without persistent awareness, Claude Code operates **blindly** at the start of e
 ┌──────────────────────────────────────────────────────┐
 │                                                      │
 │   Without:  Claude → explores → guesses → retries    │
-│             → conflicts → high token usage           │
+│             → conflicts                              │
 │                                                      │
 │   With:     Claude → predicts → verifies → acts      │
-│             → aligned → low token usage              │
+│             → aligned                                │
 │                                                      │
 └──────────────────────────────────────────────────────┘
 ```
@@ -122,7 +121,7 @@ You drop a one-line ticket into Claude Code:
 > work on ticket #42 — JWT login broken
 ```
 
-**Without mcp-brain**, Claude starts grep-walking the repo, reading directory listings, opening README, sampling files — burning 2000+ tokens before producing the first useful sentence.
+**Without mcp-brain**, Claude starts grep-walking the repo, reading directory listings, opening README, sampling files. On famous open-source repos a strong model does this well (see [Agent A/B](#-agent-ab-measured-not-estimated)); on your private code it has no prior to lean on.
 
 **With mcp-brain**, in about two seconds and without any LLM call, Claude receives:
 
@@ -279,6 +278,7 @@ reading plan (target 85%):
   high     45 commits   read 1 file    -> 98%
   medium   60 commits   read 3 files   -> 90%
   low      45 commits   read 4 files   -> 87%
+check on the newest 50 commits (not used to fit): promised 90%, got 88%, reading 2.5 files on average
 saved .brain/local/calibration.json; brain_predict_files now uses it.
 ```
 
@@ -289,19 +289,30 @@ checkout, no leakage from the future). The fitted tiers are written to
 `.brain/local/calibration.json` and every later prediction says
 `calibrated_on: this repository (150 commits)`.
 
-| Repository | Language   | Top-1 | Top-10 | Confident tier      | Time |
-| ---------- | ---------- | ----- | ------ | ------------------- | ---- |
-| gin        | Go         | 70%   | 98%    | read 1 → 98%        | 47 s |
-| gson       | Java       | 62%   | 87%    | read 1 → 89%        | 58 s |
-| preact     | JavaScript | 53%   | 86%    | read 2 → 89%        | 48 s |
-| ripgrep    | Rust       | 53%   | 92%    | read 4 → 91%        | 51 s |
-| flask      | Python     | 48%   | 92%    | one tier: read 7 → 87% | 39 s |
-| vue core   | TypeScript | 48%   | 86%    | read 2 → 89%        | 78 s |
+**It checks its own promise.** Before saving, `calibrate` fits the plan on the
+older two thirds of the commits and scores it on the newest third, which it
+never saw. That check is printed, so you know whether to trust the plan:
+
+| Repository | Language   | Top-1 | Top-10 | Newest 50 commits: promised → got | Files read |
+| ---------- | ---------- | ----- | ------ | --------------------------------- | ---------- |
+| gin        | Go         | 70%   | 98%    | 90% → 88%                         | 2.5        |
+| gson       | Java       | 62%   | 87%    | 85% → **78%**                     | 6.0        |
+| preact     | JavaScript | 53%   | 86%    | 82% → 82%                         | 6.5        |
+| ripgrep    | Rust       | 53%   | 92%    | 88% → **78%**                     | 4.8        |
+| flask      | Python     | 48%   | 92%    | 85% → 84%                         | 6.0        |
+| vue core   | TypeScript | 48%   | 86%    | 81% → 84%                         | 7.2        |
+| **Average**|            |       |        | **85% → 82%**                     | **5.5**    |
+
+Each check has only 50 commits (±10 points), so read single rows loosely; on
+average the plan over-promises by about 3 points. Compared with the generic
+benchmark plan on the same commits, the local plan reads ~30% fewer files for
+a few points less hit rate: it tunes the trade-off to your repository, it
+does not make the ranking itself more accurate.
 
 **Is a commit message a fair stand-in for an issue?** It is a harder one.
 On the 291 SWE-bench Lite issues linked to their fix commits, plans fitted on
 the commit messages promised 85% and delivered **91–95%** on the real issue
-text. The local plan errs on the side of reading one file more.
+text.
 
 When the margin does not separate a repository's commits (Flask above), the
 plan falls back to one honest tier instead of inventing confidence.
@@ -503,52 +514,35 @@ The harness also supports SWE-bench Lite (300 instances), SWE-bench Verified, Be
 
 ---
 
-## 💰 Token Efficiency
+## 🧪 Agent A/B (measured, not estimated)
 
-<p align="center">
-  <img src="assets/cost-optimization.svg" width="950" alt="Cost optimization: from 2000-5500 orientation tokens per session to roughly 650 tokens with mcp-brain"/>
-</p>
+Earlier versions of this README estimated token savings. We then measured them:
+Claude Code runs headless on 30 SWE-bench Lite issues, twice per issue, with
+read-only tools. Both arms see the same issue at the same base commit; one arm
+also has `brain_predict_files` and is told to call it first. The answer is
+scored on the first file named.
 
-### The math
+| Model  | Arm       | Hit@1 | Cost / issue | Turns | Input tokens | Wall time |
+| ------ | --------- | ----: | -----------: | ----: | -----------: | --------: |
+| Sonnet | baseline  | 100%  | $0.029       | 2.2   | 38k          | 11 s      |
+| Sonnet | mcp-brain | 96.7% | $0.035       | 3.1   | 56k          | 42 s      |
+| Haiku  | baseline  | 93.3% | $0.132       | 17.6  | 584k         | 64 s      |
+| Haiku  | mcp-brain | 93.3% | $0.156       | 21.0  | 731k         | 82 s      |
 
-A typical Claude Code session **without** mcp-brain spends thousands of tokens just to orient itself:
+**On these issues mcp-brain did not help.** Accuracy was already at the
+ceiling, and calling the tool adds a turn, so cost goes up 18–20%. SWE-bench
+repositories (Django, SymPy, pytest…) are famous; the models know where things
+live without being told. The test says nothing yet about private code the
+model has never seen, which is where a localizer should matter. That is the
+next measurement, not a claim.
 
-| Phase (no mcp-brain)  | Action                                          | ~Tokens       |
-| --------------------- | ----------------------------------------------- | ------------- |
-| Session start         | List directory, read README, sample files       | 800–2000      |
-| Issue handling        | Grep symbols, follow imports, retry wrong files | 1000–3000     |
-| Context restore       | Re-explain project conventions                  | 200–500       |
-| **Total per session** |                                                 | **2000–5500** |
+Reproduce (needs Claude Code logged in; the scratch dir must be outside this checkout):
 
-A session **with** mcp-brain:
-
-| Phase (with mcp-brain) | Action                                           | ~Tokens  |
-| ---------------------- | ------------------------------------------------ | -------- |
-| Session start          | `brain_get_context` returns compressed L1 YAML   | **~100** |
-| Issue handling         | `brain_predict_files` returns ranked top-K + why | **~250** |
-| Decision recall        | `brain_get_decisions` (only when needed)         | ~300     |
-| **Total per session**  |                                                  | **~650** |
-
-### Estimated saving
-
-```
-                        Without          With mcp-brain     Saving
-  Session start:    2000 ─────────►       100 tokens        ~95%
-  Per session:      2000–5500 ──►       450–950 tokens      40–80%
-  Per developer*:   ~1.2M/month ──►    ~400k/month          ~65%
+```bash
+python -m benchmark.agent_ab --n 30 --model sonnet --scratch /tmp/ab --out benchmark/results/agent_ab_sonnet_30.json
 ```
 
-<sub>*assuming 100 sessions/month/dev</sub>
-
-### Why this works
-
-* ✅ **No embeddings required** for retrieval (BM25 + code graph)
-* ✅ **No vector DB** to query (zero round-trip cost)
-* ✅ **No history replay** — context is *reconstructed*, not *re-scrolled*
-* ✅ **YAML compression** with `default_flow_style=True` and empty-key stripping
-* ✅ **L1/L2 split** — heavy memory only loaded on demand
-
-> 💡 The semantic reranker (`use_semantic=True`) is **on by default** and runs locally on CPU/GPU. It does not add LLM cost. Disable with `MCP_BRAIN_SEMANTIC=0` for lean CI.
+Raw results: `benchmark/results/agent_ab_{sonnet,haiku}_30.json`.
 
 ---
 
@@ -688,7 +682,6 @@ decisions:
 
 ### 🎯 Solo developer
 
-* Cuts session-start exploration: **−90% tokens** on the first turn
 * Remembers your "I always do it this way" patterns
 * Auto-supersedes decisions when you change your mind
 
@@ -702,7 +695,6 @@ decisions:
 
 * Local-first, no data leaves the machine → **GDPR / SOC2-friendly**
 * Compatible with Managed Identity / on-prem deployments (no cloud calls)
-* Token saving compounds: 65% × 100 devs × 100 sessions/month → **measurable infra savings**
 
 ---
 
@@ -797,6 +789,8 @@ I'm honest about what this is and isn't.
 * [x] Learned localizer (LambdaMART, JSON trees, pure Python)
 * [x] Calibrated reading plan + evidence cards
 * [x] Self-calibration on the repository's own history (`mcp-brain calibrate`)
+* [x] Agent A/B harness with real Claude Code runs (`benchmark/agent_ab.py`)
+* [ ] Agent A/B on private / post-cutoff repositories, where the model has no prior
 * [ ] Re-calibrate automatically from the post-commit hook
 * [ ] Cross-repo memory federation (opt-in)
 * [ ] Real-time conflict push (currently pull-based)
@@ -838,5 +832,5 @@ MIT — see [LICENSE](LICENSE).
 </p>
 
 <p align="center">
-  <sub>If mcp-brain saved you tokens, ⭐ the repo. That's the only payment I ask for.</sub>
+  <sub>If mcp-brain is useful to you, ⭐ the repo. That's the only payment I ask for.</sub>
 </p>

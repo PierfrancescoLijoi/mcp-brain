@@ -194,8 +194,10 @@ def calibrate(repo_path: str | None = None, limit: int = 150) -> int:
     for t in report['tiers']:
         files = f"{t['read_first']} file{'s' if t['read_first'] > 1 else ''}"
         print(f"  {t['label']:<6} {t['n']:>4} commits   read {files:<9} -> {t['expected_hit']:.0%}")
+    check = report['check']
+    print(f"check on the newest {check['n']} commits (not used to fit): promised {check['claimed']:.0%}, "
+          f"got {check['observed']:.0%}, reading {check['avg_files']} files on average")
     print('saved .brain/local/calibration.json; brain_predict_files now uses it.')
-    print('commit messages are terser than issues, so these rates are conservative.')
     return 0
 
 

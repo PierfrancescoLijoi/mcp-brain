@@ -59,19 +59,19 @@
 
     <rect x="0" y="306" width="360" height="72" rx="10" fill="#0f172a" stroke="#334155"/>
     <text x="16" y="332" font-family="ui-monospace, monospace" font-size="12" fill="#94a3b8">advice: <tspan fill="#e2e8f0">"Read the top 1 file(s) first:</tspan></text>
-    <text x="16" y="352" font-family="ui-monospace, monospace" font-size="12" fill="#e2e8f0">  hit rate 98% measured on this</text>
+    <text xml:space="preserve" x="16" y="352" font-family="ui-monospace, monospace" font-size="12" fill="#e2e8f0">  hit rate 98% measured on this</text>
     <text x="16" y="370" font-family="ui-monospace, monospace" font-size="12" fill="#e2e8f0">  repository (150 commits)."</text>
   </g>
 
   <!-- RIGHT: results table -->
   <g transform="translate(470, 130)" font-family="ui-sans-serif, system-ui, sans-serif">
-    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">MEASURED — 150 COMMITS EACH, ONE LAPTOP</text>
+    <text x="0" y="0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="1.5">MEASURED — 150 COMMITS EACH, ~1 MIN, ONE LAPTOP</text>
 
     <g font-size="11" fill="#64748b" font-weight="600" letter-spacing="0.5">
       <text x="0" y="34">REPOSITORY</text>
       <text x="170" y="34">CHANGED FILE RANKED #1</text>
-      <text x="400" y="34">TOP 10</text>
-      <text x="470" y="34">CONFIDENT CASES</text>
+      <text x="392" y="34">TOP 10</text>
+      <text x="455" y="34">50 UNSEEN COMMITS</text>
     </g>
     <line x1="0" y1="46" x2="570" y2="46" stroke="#1e293b"/>
 
@@ -82,8 +82,8 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="126" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">70%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">98%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 1 → <tspan font-weight="700" fill="#22c55e">98%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">98%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">90% → <tspan font-weight="700" fill="#22c55e">88%</tspan><tspan fill="#64748b" font-size="11">  · 2.5 files</tspan></text>
     </g>
     <g transform="translate(0, 104)">
       <text x="0" y="18" font-size="14" font-weight="600" fill="#ffffff">gson</text>
@@ -91,8 +91,8 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="112" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">62%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">87%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 1 → <tspan font-weight="700" fill="#22c55e">89%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">87%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">85% → <tspan font-weight="700" fill="#f59e0b">78%</tspan><tspan fill="#64748b" font-size="11">  · 6.0 files</tspan></text>
     </g>
     <g transform="translate(0, 150)">
       <text x="0" y="18" font-size="14" font-weight="600" fill="#ffffff">preact</text>
@@ -100,8 +100,8 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="96" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">53%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">86%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 2 → <tspan font-weight="700" fill="#22c55e">89%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">86%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">82% → <tspan font-weight="700" fill="#22c55e">82%</tspan><tspan fill="#64748b" font-size="11">  · 6.5 files</tspan></text>
     </g>
     <g transform="translate(0, 196)">
       <text x="0" y="18" font-size="14" font-weight="600" fill="#ffffff">ripgrep</text>
@@ -109,8 +109,8 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="96" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">53%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">92%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 4 → <tspan font-weight="700" fill="#22c55e">91%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">92%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">88% → <tspan font-weight="700" fill="#f59e0b">78%</tspan><tspan fill="#64748b" font-size="11">  · 4.8 files</tspan></text>
     </g>
     <g transform="translate(0, 242)">
       <text x="0" y="18" font-size="14" font-weight="600" fill="#ffffff">flask</text>
@@ -118,8 +118,8 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="86" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">48%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">92%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 7 → <tspan font-weight="700" fill="#f59e0b">87%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">92%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">85% → <tspan font-weight="700" fill="#22c55e">84%</tspan><tspan fill="#64748b" font-size="11">  · 6.0 files</tspan></text>
     </g>
     <g transform="translate(0, 288)">
       <text x="0" y="18" font-size="14" font-weight="600" fill="#ffffff">vue core</text>
@@ -127,19 +127,19 @@
       <rect x="170" y="8" width="180" height="16" rx="5" fill="#1e293b"/>
       <rect x="170" y="8" width="86" height="16" rx="5" fill="url(#top1S)"/>
       <text x="360" y="21" font-size="13" font-weight="700" fill="#ffffff">48%</text>
-      <text x="400" y="21" font-size="13" fill="#c4b5fd">86%</text>
-      <text x="470" y="21" font-size="13" fill="#e2e8f0">read 2 → <tspan font-weight="700" fill="#22c55e">89%</tspan></text>
+      <text x="392" y="21" font-size="13" fill="#c4b5fd">86%</text>
+      <text x="455" y="21" font-size="13" fill="#94a3b8">81% → <tspan font-weight="700" fill="#22c55e">84%</tspan><tspan fill="#64748b" font-size="11">  · 7.2 files</tspan></text>
     </g>
 
-    <text x="0" y="360" font-size="12" fill="#94a3b8">Flask: the margin does not separate its commits, so the plan honestly falls back</text>
-    <text x="0" y="378" font-size="12" fill="#94a3b8">to one tier ("read 7"). JS/TS score ~25% on the public benchmark, ~50% here.</text>
+    <text x="0" y="360" font-size="12" fill="#94a3b8">Promised → got: the plan is fitted on 100 older commits and scored on the 50 newest.</text>
+    <text x="0" y="378" font-size="12" fill="#94a3b8">Average: promised 85%, got 82%. Worst: ripgrep and gson, 7–10 points short.</text>
   </g>
 
   <!-- honesty strip -->
   <g transform="translate(60, 540)" font-family="ui-sans-serif, system-ui, sans-serif">
     <rect x="0" y="0" width="980" height="56" rx="12" fill="#22c55e" fill-opacity="0.06" stroke="#22c55e" stroke-opacity="0.35"/>
-    <text x="20" y="24" font-size="13" font-weight="700" fill="#22c55e" letter-spacing="1">CONSERVATIVE BY CONSTRUCTION</text>
-    <text x="20" y="44" font-size="13" fill="#cbd5e1">Commit messages are terser than issues. Plans fitted on the 291 SWE-bench Lite fix commits promised 85%; on the real issues they delivered 91–95%.</text>
+    <text x="20" y="24" font-size="13" font-weight="700" fill="#22c55e" letter-spacing="1">EVERY CALIBRATION CHECKS ITSELF</text>
+    <text x="20" y="44" font-size="13" fill="#cbd5e1">mcp-brain calibrate prints promised vs got on commits it never fitted on. On real issues, commit-fitted plans held up: promised 85%, got 91–95%.</text>
   </g>
 
   <rect x="0" y="637" width="1100" height="3" fill="url(#accentS)"/>

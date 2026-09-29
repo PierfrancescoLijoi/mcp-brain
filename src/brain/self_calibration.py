@@ -40,6 +40,7 @@ MAX_FILES = 5  # larger commits are refactors/merges, not single-issue fixes
 MIN_QUERIES = 30
 MIN_SUBJECT_WORDS = 3
 KS = (1, 3, 5, 10)
+HOLDOUT_SHARE = 3  # newest 1/HOLDOUT_SHARE of the commits checks a plan fitted on the rest
 TRAILERS = ('signed-off-by:', 'co-authored-by:', 'reviewed-by:', 'change-id:')
 
 
@@ -118,12 +119,36 @@ def measure(root: Path, query: dict, reader: BlobReader, blobs: dict, model: dic
     return (scored[0][0] - scored[1][0] if len(scored) > 1 else 0.0), rank
 
 
+def _fit_tiers(results: list, target: float) -> list:
+    tiers = calibrate_tiers(results, target=target)
+    if any(a['read_first'] > b['read_first'] for a, b in zip(tiers, tiers[1:])):
+        # The margin does not separate this repository's commits: one pooled tier is the honest plan.
+        tiers = calibrate_tiers(results, target=target, shares=(), labels=('low',))
+    return tiers
+
+
+def holdout_check(results: list, target: float) -> dict:
+    """Fit on the older commits, score the plan on the newest third it never saw."""
+    n_test = len(results) // HOLDOUT_SHARE
+    test, train = results[:n_test], results[n_test:]  # results are newest first
+    tiers = _fit_tiers(train, target)
+    claimed = hit = files = 0
+    for margin, rank in test:
+        tier = next(t for t in tiers if margin >= t['min_margin'])
+        claimed += tier['expected_hit']
+        files += tier['read_first']
+        hit += rank is not None and rank <= tier['read_first']
+    return {'n': n_test, 'claimed': round(claimed / n_test, 3), 'observed': round(hit / n_test, 3),
+            'avg_files': round(files / n_test, 1)}
+
+
 def self_calibrate(repo: str | Path, limit: int = 150, target: float = 0.85,
                    min_queries: int = MIN_QUERIES, progress=None) -> dict:
     """Measure the localizer on recent commits and store local reading-plan tiers.
 
-    Returns the report; ``tiers`` is present (and the file written) only when at
-    least ``min_queries`` commits were usable.
+    Returns the report; ``tiers`` and ``check`` (the plan scored on commits it was
+    not fitted on) are present, and the file written, only when at least
+    ``min_queries`` commits were usable.
     """
     root = Path(_git(Path(repo), 'rev-parse', '--show-toplevel').strip())
     started = time.time()
@@ -152,11 +177,8 @@ def self_calibrate(repo: str | Path, limit: int = 150, target: float = 0.85,
         'seconds': round(time.time() - started, 1),
     }
     if n >= min_queries:
-        tiers = calibrate_tiers(results, target=target)
-        if any(a['read_first'] > b['read_first'] for a, b in zip(tiers, tiers[1:])):
-            # The margin does not separate this repository's commits: one pooled tier is the honest plan.
-            tiers = calibrate_tiers(results, target=target, shares=(), labels=('low',))
-        report['tiers'] = tiers
+        report['check'] = holdout_check(results, target)
+        report['tiers'] = _fit_tiers(results, target)
         path = root / '.brain' / 'local' / CALIBRATION_FILE
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(report, indent=1), encoding='utf-8')

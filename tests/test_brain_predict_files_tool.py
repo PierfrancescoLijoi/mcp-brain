@@ -93,6 +93,14 @@ class TestPredictFilesImpl:
         assert 'evidence: |' in out
         assert yaml.safe_load(out)['predictions'][0]['evidence'] == evidence
 
+    def test_evidence_cards_only_for_files_the_plan_says_to_read(self):
+        plan = {'confidence': 'medium', 'read_first': 2, 'expected_hit': 0.86}
+        rows = [{'file': f'f{i}.py', 'confidence': 'medium', 'score': 1.0, 'source': 'localizer',
+                 'hops': 0, 'why': 'w', 'evidence': f'card {i}'} for i in range(5)]
+        rows[0]['plan'] = plan
+        preds = yaml.safe_load(_format_predictions(rows))['predictions']
+        assert ['evidence' in p for p in preds] == [True, True, False, False, False]
+
     def test_returns_yaml_with_predictions(self, fake_index):
         fake_index({
             'src/auth.py': {'symbols': ['login'], 'identifiers': []},

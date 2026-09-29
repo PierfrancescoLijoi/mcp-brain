@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-from src.brain.self_calibration import history_queries, self_calibrate
+from src.brain.self_calibration import history_queries, holdout_check, self_calibrate
 
 
 def _git(root, *args):
@@ -48,6 +48,7 @@ def test_self_calibrate_writes_local_plan_used_by_localize(tmp_path):
     assert report['n'] == 8 and report['hit']['hit@1'] == 1.0
     saved = json.loads((repo / '.brain' / 'local' / 'calibration.json').read_text(encoding='utf-8'))
     assert saved['tiers'] == report['tiers'] and saved['source'] == 'this repository (8 commits)'
+    assert saved['check'] == {'n': 2, 'claimed': 1.0, 'observed': 1.0, 'avg_files': 1.0}
     plan = localize(repo, 'handler_3 returns the wrong value', top_k=3)[0]['plan']
     assert plan['calibrated_on'] == 'this repository (8 commits)'
 
@@ -58,3 +59,10 @@ def test_self_calibrate_needs_enough_commits(tmp_path):
     report = self_calibrate(repo, limit=20)
     assert 'tiers' not in report and report['n'] == 2
     assert not (repo / '.brain' / 'local' / 'calibration.json').exists()
+
+
+def test_holdout_check_scores_newest_commits_with_plan_fitted_on_older():
+    # newest first: the 10 newest commits all miss, the 20 older ones are always rank 1
+    results = [(0.1, None)] * 10 + [(1.0, 1)] * 20
+    check = holdout_check(results, target=0.85)
+    assert check == {'n': 10, 'claimed': 1.0, 'observed': 0.0, 'avg_files': 1.0}

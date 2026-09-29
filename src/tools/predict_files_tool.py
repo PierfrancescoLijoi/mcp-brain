@@ -35,6 +35,10 @@ _BlockDumper.add_representer(
 )
 
 
+# Evidence cards are ~1k tokens each: send them only for the files the plan says to read.
+MAX_CARDS = 3
+
+
 def _plan_advice(plan: Dict[str, Any]) -> str:
     k, hit = plan['read_first'], round(plan['expected_hit'] * 100)
     where = plan.get('calibrated_on', 'benchmark')
@@ -51,8 +55,10 @@ def _format_predictions(
     if not results:
         return 'predictions: []\nhint: "try different keywords or run brain_init"'
 
+    plan = results[0].get('plan')
+    cards = min(plan['read_first'], MAX_CARDS) if plan else MAX_CARDS
     items = []
-    for r in results:
+    for n, r in enumerate(results):
         entry = {
             'file': r['file'],
             'confidence': r['confidence'],
@@ -65,13 +71,12 @@ def _format_predictions(
             entry['semantic_score'] = r['semantic_score']
         if 'seed' in r:
             entry['seed'] = r['seed']
-        if 'evidence' in r:
+        if 'evidence' in r and n < cards:
             entry['evidence'] = r['evidence']
         items.append(entry)
 
     doc = {'predictions': items}
     # Calibrated only for the ranker's own order: omitted if the verifier moved the top file.
-    plan = results[0].get('plan')
     if plan:
         doc = {'plan': {**plan, 'advice': _plan_advice(plan)}, **doc}
     if any('evidence' in i for i in items):
